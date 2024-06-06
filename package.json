@@ -8,21 +8,40 @@
     "start": "next start"
   },
   "dependencies": {
+    "@ensdomains/ensjs": "^3.7.0",
+    "@radix-ui/react-dialog": "^1.0.5",
+    "@radix-ui/react-icons": "^1.3.0",
+    "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-radio-group": "^1.1.3",
+    "@radix-ui/react-slot": "^1.0.2",
     "@rainbow-me/rainbowkit": "workspace:*",
     "@rainbow-me/rainbowkit-siwe-next-auth": "workspace:*",
+    "@tanstack/react-query": "^5.28.4",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
     "ethers": "^5.6.8",
     "next": "^14.2.3",
     "next-auth": "4.24.5",
+    "pino-pretty": "^11.0.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
+    "react-transition-state": "1.1.5",
     "siwe": "^2.1.4",
+    "styled-components": "^6.1.11",
+    "tailwind-merge": "^2.2.2",
+    "tailwindcss-animate": "^1.0.7",
     "viem": "2.9.31",
-    "wagmi": "^2.9.2",
-    "@tanstack/react-query": "^5.28.4"
+    "wagmi": "^2.9.2"
   },
   "devDependencies": {
-    "@types/node": "^18.19.3",
-    "@types/react": "^18.3.0",
-    "typescript": "5.4.2"
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8",
+    "eslint-config-next": "14.1.4",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5"
   }
 }

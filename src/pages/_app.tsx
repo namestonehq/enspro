@@ -4,7 +4,7 @@ import type { AppProps } from "next/app";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
-import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 
 import { SessionProvider } from "next-auth/react";
 import type { Session } from "next-auth";
@@ -34,7 +34,15 @@ export default function App({
           <RainbowKitSiweNextAuthProvider
             getSiweMessageOptions={getSiweMessageOptions}
           >
-            <RainbowKitProvider>
+            <RainbowKitProvider
+              theme={darkTheme({
+                accentColor: "#0E76FD",
+                accentColorForeground: "white",
+                borderRadius: "large",
+                fontStack: "system",
+                overlayBlur: "small",
+              })}
+            >
               <Component {...pageProps} />
             </RainbowKitProvider>
           </RainbowKitSiweNextAuthProvider>
