@@ -57,8 +57,6 @@ export const ConnectButton = () => {
       className={`${buttonWidth}`}
       onClick={async () => {
         openAccountModal?.();
-
-        disconnect();
       }}
     >
       {" "}

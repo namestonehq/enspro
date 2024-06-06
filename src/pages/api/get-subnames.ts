@@ -4,6 +4,7 @@ import { getSubnames, Name } from "@ensdomains/ensjs/subgraph";
 import { addEnsContracts } from "@ensdomains/ensjs";
 import { mainnet } from "viem/chains";
 import { createPublicClient, http } from "viem";
+import sql from "../../lib/db";
 
 const client = createPublicClient({
   chain: addEnsContracts(mainnet),
@@ -22,7 +23,19 @@ export default async function handler(
 
   const params = new URLSearchParams(req.url?.split("?")[1]);
   const name = params.get("name");
-  const apiKey = process.env.API_KEY || "default_api_key";
+  const address = params.get("address");
+  // get api key from database
+  const apiKeyQuery = await sql`
+    select api_key from "ApiKey" where
+    address = ${address} and domain = ${name}
+  `;
+  console.log("API Key Query:", apiKeyQuery);
+
+  if (apiKeyQuery.length === 0) {
+    res.status(400).json({ error: "API key not found" });
+    return;
+  }
+  const apiKey = apiKeyQuery[0].api_key;
 
   try {
     const [onchainSubnames, offchainSubnames] = await Promise.all([

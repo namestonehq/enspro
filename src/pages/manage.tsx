@@ -19,7 +19,8 @@ import { getResolver } from "@ensdomains/ensjs/public";
 import { addEnsContracts } from "@ensdomains/ensjs";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { EnableModal } from "../components/EnableModal";
-
+import { ApiKeyModal } from "../components/ApiKeyModal";
+import { useAccount } from "wagmi";
 const client = createPublicClient({
   chain: addEnsContracts(mainnet),
   transport: http(),
@@ -31,18 +32,24 @@ export default function Home() {
   const [basename, setbasename] = useState(searchParams?.get("name") || "");
   const [resolver, setResolver] = useState("");
   const [isEnable, setIsEnable] = useState(false);
+  const [hasApiKey, setHasApiKey] = useState(false);
   const [offchainNames, setOffchainNames] = useState(0);
+  const account = useAccount();
 
   console.log({ basename, offchainNames });
 
+  const goodResolvers = [
+    "0x7CE6Cf740075B5AF6b1681d67136B84431B43AbD",
+    "0xd17347fA0a6eeC89a226c96a9ae354F785e94241",
+    "0x2291053F49Cd008306b92f84a61c6a1bC9B5CB65",
+  ];
+
   const fetchResolver = async () => {
-    console.log("Fetching resolver for", basename);
-    if (!basename) return; // Guard clause to prevent fetching with an empty name
     try {
       console.log("Fetching resolver for", basename);
       const result = await getResolver(client, { name: basename });
       setResolver(result as string);
-      if (result === "0xd17347fA0a6eeC89a226c96a9ae354F785e94241") {
+      if (goodResolvers.includes(result || "")) {
         setIsEnable(true);
       } else {
         setIsEnable(false);
@@ -53,11 +60,13 @@ export default function Home() {
   };
 
   const fetchSubnames = async () => {
-    if (!basename) return; // Guard clause to prevent fetching with an empty name
     try {
-      const response = await fetch(`/api/get-subnames?name=${basename}`);
+      const response = await fetch(
+        `/api/get-subnames?name=${basename}&address=${account.address}`
+      );
 
       if (response.ok) {
+        setHasApiKey(true);
         const displayedData = await response.json();
         setSubnames(displayedData);
         setOffchainNames(
@@ -74,11 +83,13 @@ export default function Home() {
 
   // Effect to run fetchSubnames whenever `name` changes
   useEffect(() => {
-    fetchSubnames();
+    if (!basename) return; // Guard clause to prevent fetching with an empty name
     fetchResolver();
-
+    if (isEnable) {
+      fetchSubnames();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [basename]); // Dependency array includes `name`
+  }, [basename, isEnable]); // Dependency array includes `name`
 
   console.log(resolver, isEnable);
 
@@ -102,7 +113,11 @@ export default function Home() {
                 </span>
               </div>
               <div className="text-xl font-mono text-blue-600">
-                {isEnable.toString()}
+                {!isEnable
+                  ? "Incorrect Resolver"
+                  : !hasApiKey
+                  ? "Missing API Key"
+                  : "Ready to Manage"}
               </div>
               {/* <div className="flex items-center">
                 <Label htmlFor="api-key-input" className="mr-2">
@@ -115,13 +130,20 @@ export default function Home() {
           <div className="w-full mt-8 flex justify-between items-center">
             <div className="font-mono text-sm">Subnames: {subnames.length}</div>
             <AddSubnameModal
-              disabled={!isEnable}
+              disabled={!isEnable || !hasApiKey}
               basename={basename}
               newbasename={offchainNames == 0}
             />
           </div>
           <hr className="my-4" />
           {!isEnable && <SwitchResolverMessage basename={basename} />}
+          {isEnable && !hasApiKey && (
+            <GetApiKeyMessage
+              basename={basename}
+              address={account.address || ""}
+            />
+          )}
+          {isEnable && !hasApiKey && <EnterApiKeyMessage basename={basename} />}
           <div className="grid sm:grid-cols-2 grid-cols-2 gap-4">
             {subnames.map((name, index) => (
               <NameCard key={index} name={name} basename={basename} />
@@ -388,6 +410,51 @@ function SwitchResolverMessage({ basename }: { basename: string }) {
         basename={basename}
         trigger={<Button>Switch Resolver</Button>}
       />
+    </div>
+  );
+}
+function GetApiKeyMessage({
+  basename,
+  address,
+}: {
+  basename: string;
+  address: string;
+}) {
+  const [buttonText, setButtonText] = useState("Get Key");
+  function getApiKey() {
+    setButtonText("Getting Key...");
+    fetch(`/api/get-api-key?address=${address}&domain=${basename}`).then(
+      (response) => {
+        if (response.ok) {
+          console.log("API key fetched successfully");
+          setButtonText("Key Fetched");
+        } else {
+          console.error("Failed to fetch API key");
+          setButtonText("Failed to fetch key");
+        }
+      }
+    );
+  }
+
+  return (
+    <div className="flex mb-4 text-indigo-500 text-sm rounded-lg p-3 items-center justify-between w-full h-14 bg-indigo-50">
+      <div className="flex items-center gap-2">
+        <ExclamationTriangleIcon width={16} height={16} />
+        Get an API key to manage subnames.
+      </div>
+      <Button onClick={getApiKey}>{buttonText}</Button>
+    </div>
+  );
+}
+
+function EnterApiKeyMessage({ basename }: { basename: string }) {
+  return (
+    <div className="flex mb-4 text-orange-500 text-sm rounded-lg p-3 items-center justify-between w-full h-14 bg-orange-50">
+      <div className="flex items-center gap-2">
+        <ExclamationTriangleIcon width={16} height={16} />
+        Managed name through namestone? Enter your API key.
+      </div>
+      <ApiKeyModal basename={basename} trigger={<Button>Enter Key</Button>} />
     </div>
   );
 }

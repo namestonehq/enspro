@@ -10,6 +10,12 @@ const client = createPublicClient({
   transport: http(),
 }).extend(ensSubgraphActions);
 
+const goodResolvers = [
+  "0x7CE6Cf740075B5AF6b1681d67136B84431B43AbD",
+  "0xd17347fA0a6eeC89a226c96a9ae354F785e94241",
+  "0x2291053F49Cd008306b92f84a61c6a1bC9B5CB65",
+];
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -53,8 +59,7 @@ export default async function handler(
       parentName: item.parentName,
       owner: item.owner,
       createdAt: item.createdAt,
-      status:
-        displayedData[index] === "0x2291053F49Cd008306b92f84a61c6a1bC9B5CB65",
+      status: goodResolvers.includes(displayedData[index] || ""),
       expiryDate: item.expiryDate,
       resolver: displayedData[index],
     }));

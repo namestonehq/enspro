@@ -22,7 +22,7 @@ import { addEnsContracts } from "@ensdomains/ensjs";
 import { setResolver } from "@ensdomains/ensjs/wallet";
 
 // *** UI Components ***
-import { Button } from "../components/ui/button";
+import { Button } from "./ui/button";
 import {
   Dialog,
   DialogContent,
@@ -32,9 +32,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
+import { Input } from "./ui/input";
 
 // *** Constants ***
-const HYBRID_RESOLVER = "0xd17347fA0a6eeC89a226c96a9ae354F785e94241";
+const HYBRID_RESOLVER = "0x7CE6Cf740075B5AF6b1681d67136B84431B43AbD";
 
 const client = createClient({
   chain: addEnsContracts(mainnet),
@@ -46,7 +47,7 @@ const publicClient = createPublicClient({
   transport: http(),
 });
 
-export function EnableModal({
+export function ApiKeyModal({
   basename,
   trigger,
 }: {
@@ -59,6 +60,7 @@ export function EnableModal({
   const [txStatus, setTxStatus] = useState("");
   const [resolver, setResolver] = useState("");
   const [isResolverSet, setIsResolverSet] = useState(false);
+  const [apiKey, setApiKey] = useState("");
   const account = useAccount();
 
   const handleOpenChange = async (open: boolean) => {
@@ -89,43 +91,33 @@ export function EnableModal({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
-          <DialogTitle>Update Resolver</DialogTitle>
+          <DialogTitle>Enter Api Key</DialogTitle>
           <DialogDescription>
-            To use ENS/ONE a different resolver is required. We use a{" "}
-            <Link
-              className="underline"
-              href="https://etherscan.io/address/0x7CE6Cf740075B5AF6b1681d67136B84431B43AbD"
-              target="_blank"
-            >
-              verified resolver
-            </Link>
-            .
+            You have previously managed this name using namestone. Enter your
+            API key below manage it with ensone.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col">
-          <div className="flex mb-2 mt-4 font-bold gap-2 items-center">
-            Current Resolver
-          </div>
-          <div className="rounded-lg w-full mb-2 ring-1 ring-slate-300 text-slate-400 pl-2 pr-4 py-2 font-mono text-sm bg-slate-50">
-            {resolver || "Loading..."}
-          </div>
+          <Input
+            placeholder="API Key"
+            className="w-full"
+            type="text"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+          />
         </div>
 
         <DialogFooter>
           <div className="flex justify-between w-full items-center">
-            <div>{txStatus && <StatusDisplay status={txStatus} />}</div>
             <EnableButton
-              resolver={resolver}
               buttonText={buttonText}
               domain={basename}
+              apiKey={apiKey}
               account={
                 account.address ||
                 ("0x0000000000000000000000000000000000000000" as Address)
               }
               setButtonText={setButtonText}
-              enabled={isResolverSet}
-              isNamewrapper={isNameWrapper}
-              setTxStatus={setTxStatus}
             />
           </div>
         </DialogFooter>
@@ -138,38 +130,27 @@ function EnableButton({
   domain,
   buttonText,
   setButtonText,
-  resolver,
-  enabled,
+  apiKey,
   account,
-  isNamewrapper,
-  setTxStatus,
 }: {
   domain: string;
   buttonText: string;
+  apiKey: string;
   setButtonText: (text: string) => void;
-  resolver: string;
-  enabled: boolean;
   account: Address;
-  isNamewrapper: boolean;
-  setTxStatus: (text: string) => void;
 }) {
   const [showSpinner, setShowSpinner] = useState(false);
   const router = useRouter();
-
-  if (enabled) {
-    setButtonText("Manage Subnames");
-  } else if (resolver === HYBRID_RESOLVER) {
-    setButtonText("Add Text Record");
-  }
-
   async function handleClick() {
-    if (!enabled) {
-      if (resolver !== HYBRID_RESOLVER && account) {
-        await changeResolver({ domain, account, isNamewrapper, setTxStatus });
+    setShowSpinner(true);
+    fetch(
+      `/api/add-api-key?api_key=${apiKey}&address=${account}&domain=${domain}`
+    ).then((response) => {
+      if (response.ok) {
+        router.push(`/manage?name=${domain}`);
       }
-    } else {
-      router.push(`/manage?name=${domain}`);
-    }
+      setShowSpinner(false);
+    });
   }
 
   return (
@@ -186,72 +167,5 @@ function EnableButton({
       )}
       {buttonText}
     </Button>
-  );
-}
-
-// Changes resolver based on the nameWrapper status
-async function changeResolver({
-  domain,
-  account,
-  isNamewrapper,
-  setTxStatus,
-}: {
-  domain: string;
-  account: Address;
-  isNamewrapper: boolean;
-  setTxStatus: (text: string) => void;
-}) {
-  const wallet = createWalletClient({
-    chain: addEnsContracts(mainnet),
-    transport: custom(window.ethereum),
-  });
-
-  try {
-    setTxStatus("Changing resolver...");
-    const hash = await setResolver(wallet, {
-      name: domain,
-      contract: isNamewrapper ? "nameWrapper" : "registry",
-      resolverAddress: HYBRID_RESOLVER,
-      account: account,
-    });
-    await handleTransaction({ hash: hash, setTxStatus: setTxStatus });
-  } catch (error) {
-    handleTransactionError({ error: error, setTxStatus: setTxStatus });
-  }
-}
-
-async function handleTransaction({
-  hash,
-  setTxStatus,
-}: {
-  hash: Hex;
-  setTxStatus: (text: string) => void;
-}) {
-  setTxStatus("pending");
-  try {
-    const transaction = await publicClient.waitForTransactionReceipt({ hash });
-    setTxStatus("success");
-  } catch (error) {
-    setTxStatus("error");
-    console.error(error);
-  }
-}
-
-async function handleTransactionError({
-  error,
-  setTxStatus,
-}: {
-  error: any;
-  setTxStatus: (text: string) => void;
-}) {
-  setTxStatus("error");
-  console.error(error);
-}
-
-function StatusDisplay({ status }: { status: string }) {
-  return (
-    <div className="flex items-center gap-2">
-      <span>{status}</span>
-    </div>
   );
 }

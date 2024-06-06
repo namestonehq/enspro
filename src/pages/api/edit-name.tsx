@@ -1,5 +1,6 @@
-// pages/api/namestone-set-name.tsx
-import { NextRequest, NextResponse } from "next/server";
+// pages/api/namestone-set-name.ts
+import { NextApiRequest, NextApiResponse } from "next";
+import sql from "../../lib/db";
 
 async function makeRequest(url: string, apiKey: string, body: any) {
   try {
@@ -23,9 +24,30 @@ async function makeRequest(url: string, apiKey: string, body: any) {
   }
 }
 
-export async function POST(req: NextRequest) {
-  const apiKey = process.env.API_KEY || "default_api_key";
-  const { method, ...body } = await req.json();
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method !== "POST") {
+    res.setHeader("Allow", ["POST"]);
+    res.status(405).json({ error: "Method not allowed" });
+    return;
+  }
+
+  const { method, ...body } = req.body;
+
+  // get api key from database
+  const apiKeyQuery = await sql`
+    select api_key from "ApiKey" where
+    address = ${body.address} and domain = ${body.domain}
+  `;
+  console.log("API Key Query:", apiKeyQuery);
+  const apiKey = apiKeyQuery[0]?.api_key;
+
+  if (!apiKey) {
+    res.status(400).json({ error: "API key not found" });
+    return;
+  }
 
   try {
     if (method === "delete") {
@@ -34,14 +56,14 @@ export async function POST(req: NextRequest) {
         apiKey,
         body
       );
-      return NextResponse.json(data);
+      res.status(200).json(data);
     } else if (method === "set") {
       const data = await makeRequest(
         "https://namestone.xyz/api/public_v1/set-name",
         apiKey,
         body
       );
-      return NextResponse.json(data);
+      res.status(200).json(data);
     } else if (method === "edit") {
       // Creates the new name with relevant data
       await makeRequest(
@@ -61,14 +83,11 @@ export async function POST(req: NextRequest) {
         }
       );
 
-      return NextResponse.json({ message: "Name edited successfully" });
+      res.status(200).json({ message: "Name edited successfully" });
     } else {
-      return NextResponse.json(
-        { error: "Method not allowed" },
-        { status: 405 }
-      );
+      res.status(405).json({ error: "Method not allowed" });
     }
   } catch (error) {
-    return NextResponse.json({ error: "An error occurred" }, { status: 500 });
+    res.status(500).json({ error: "An error occurred" });
   }
 }
