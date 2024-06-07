@@ -22,6 +22,7 @@ import { EnableModal } from "../components/EnableModal";
 import { ApiKeyModal } from "../components/ApiKeyModal";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
+import { isAddress } from "viem";
 
 const client = createPublicClient({
   chain: addEnsContracts(mainnet),
@@ -37,7 +38,9 @@ export default function Home() {
   const [isEnable, setIsEnable] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
   const [offchainNames, setOffchainNames] = useState(0);
+  const [refetch, setRefetch] = useState(0);
   const account = useAccount();
+  const router = useRouter();
 
   console.log(searchParams.get("name"));
   useEffect(() => {
@@ -51,6 +54,10 @@ export default function Home() {
     "0xd17347fA0a6eeC89a226c96a9ae354F785e94241",
     "0x2291053F49Cd008306b92f84a61c6a1bC9B5CB65",
   ];
+
+  function doRefetch() {
+    setRefetch((prev) => prev + 1);
+  }
 
   const fetchResolver = async () => {
     try {
@@ -99,7 +106,7 @@ export default function Home() {
       fetchSubnames();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [basename, isEnable]); // Dependency array includes `name`
+  }, [basename, isEnable, refetch]); // Dependency array includes `name`
 
   return (
     <main className="flex min-h-screen flex-col px-2 sm:px-8 max-w-5xl mx-auto">
@@ -108,7 +115,17 @@ export default function Home() {
       {/* Main Content */}
       <div className="flex flex-col">
         {/* Welcome */}
-        <div className="text-center my-8">Personal Subname Management</div>
+        <div className="flex justify-between items-center">
+          <Button
+            onClick={() => {
+              router.push("/");
+            }}
+          >
+            Back
+          </Button>
+          <div className="text-center my-8">Personal Subname Management</div>
+          <div />
+        </div>
 
         {/* Box */}
         <div className="flex shadow-lg w-full sm:w-[800px] min-h-[480px] p-8 flex-col border border-slate-200 rounded mx-auto">
@@ -138,11 +155,13 @@ export default function Home() {
             </div>
           </div>
           <div className="w-full mt-8 flex justify-between items-center">
-            <div className="font-mono text-sm">Subnames: {subnames.length}</div>
+            <div className="font-mono text-sm">
+              Subnames: {loading ? "loading..." : subnames.length}
+            </div>
             <AddSubnameModal
               disabled={!isEnable || !hasApiKey}
               basename={basename}
-              newbasename={offchainNames == 0}
+              doRefetch={doRefetch}
             />
           </div>
           <hr className="my-4" />
@@ -164,7 +183,12 @@ export default function Home() {
           )}
           <div className="grid sm:grid-cols-2 grid-cols-2 gap-4">
             {subnames.map((name, index) => (
-              <NameCard key={index} name={name} basename={basename} />
+              <NameCard
+                key={index}
+                name={name}
+                basename={basename}
+                doRefetch={doRefetch}
+              />
             ))}
           </div>
         </div>
@@ -173,9 +197,18 @@ export default function Home() {
   );
 }
 
-function NameCard({ name, basename }: { name: Subname; basename: string }) {
+function NameCard({
+  name,
+  basename,
+  doRefetch,
+}: {
+  name: Subname;
+  basename: string;
+  doRefetch: () => void;
+}) {
   const [subname, setSubname] = useState(name.labelName || "");
   const [address, setAddress] = useState(name.resolvedAddress || "");
+  const [open, setOpen] = useState(false);
 
   const handleEditSubname = async () => {
     const originalName = name.labelName || ""; // The original subname
@@ -186,6 +219,8 @@ function NameCard({ name, basename }: { name: Subname; basename: string }) {
       resolvedAddress: address as Address,
       originalName: originalName,
     });
+    doRefetch();
+    setOpen(false);
   };
 
   const handleDeleteSubname = async () => {
@@ -195,10 +230,12 @@ function NameCard({ name, basename }: { name: Subname; basename: string }) {
       basename: basename,
       resolvedAddress: address as Address,
     });
+    doRefetch();
+    setOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <div className="cursor-pointer   w-80 p-4 flex flex-col border rounded  gap-2 hover:bg-slate-50">
           <div className="flex justify-between">
@@ -255,6 +292,9 @@ function NameCard({ name, basename }: { name: Subname; basename: string }) {
             className="col-span-3 text-xs"
             disabled={name.nameType === "onchain"}
           />
+          {!isAddress(address) && address !== "" && (
+            <div className="text-red-500 text-xs">Invalid address</div>
+          )}
         </div>
 
         <DialogFooter>
@@ -266,7 +306,9 @@ function NameCard({ name, basename }: { name: Subname; basename: string }) {
             >
               Delete
             </Button>
-            <Button onClick={handleEditSubname}>Save</Button>
+            <Button disabled={!isAddress(address)} onClick={handleEditSubname}>
+              Save
+            </Button>
           </div>
         </DialogFooter>
       </DialogContent>
@@ -281,14 +323,15 @@ function shortenAddress(address: Address) {
 function AddSubnameModal({
   basename,
   disabled,
-  newbasename,
+  doRefetch,
 }: {
   basename: string;
   disabled: boolean;
-  newbasename: boolean;
+  doRefetch: () => void;
 }) {
   const [subname, setSubname] = useState("");
   const [address, setAddress] = useState("");
+  const [open, setOpen] = useState(false);
 
   const handleAddSubname = async () => {
     await manageSubname({
@@ -301,9 +344,11 @@ function AddSubnameModal({
     // Clear the input fields after adding the subname
     setSubname("");
     setAddress("");
+    doRefetch();
+    setOpen(false);
   };
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button disabled={disabled} className="text-sm w-12">
           Add
@@ -334,10 +379,15 @@ function AddSubnameModal({
             onChange={(e) => setAddress(e.target.value)}
             className="col-span-3"
           />
+          {!isAddress(address) && address !== "" && (
+            <div className="text-red-500 text-xs">Invalid address</div>
+          )}
         </div>
 
         <DialogFooter>
-          <Button onClick={handleAddSubname}>Save</Button>
+          <Button disabled={!isAddress(address)} onClick={handleAddSubname}>
+            Save
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -406,8 +456,6 @@ async function manageSubname({
     if (response.ok) {
       const data = await response.json();
       console.log(`Subname method ${method} executed successfully:`, data);
-      // Handle the response data as needed
-      window.location.reload();
     } else {
       console.error(`Failed to execute ${method} for subname`);
       // Handle the error case

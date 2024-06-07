@@ -231,6 +231,7 @@ async function handleTransaction({
   try {
     const transaction = await publicClient.waitForTransactionReceipt({ hash });
     setTxStatus("success");
+    window.location.reload();
   } catch (error) {
     setTxStatus("error");
     console.error(error);

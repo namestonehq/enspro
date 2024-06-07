@@ -149,7 +149,7 @@ function EnableButton({
       `/api/add-api-key?api_key=${apiKey}&address=${account}&domain=${domain}`
     ).then((response) => {
       if (response.ok) {
-        router.push(`/manage?name=${domain}`);
+        window.location.reload();
       }
       setShowSpinner(false);
     });
