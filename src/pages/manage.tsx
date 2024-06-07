@@ -13,7 +13,7 @@ import {
 import NavBar from "../components/nav-bar";
 import { Address, createPublicClient, http } from "viem";
 import { mainnet } from "viem/chains";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getResolver } from "@ensdomains/ensjs/public";
 import { addEnsContracts } from "@ensdomains/ensjs";
@@ -21,6 +21,8 @@ import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { EnableModal } from "../components/EnableModal";
 import { ApiKeyModal } from "../components/ApiKeyModal";
 import { useAccount } from "wagmi";
+import { useRouter } from "next/navigation";
+
 const client = createPublicClient({
   chain: addEnsContracts(mainnet),
   transport: http(),
@@ -30,13 +32,19 @@ export default function Home() {
   const searchParams = useSearchParams();
   const [subnames, setSubnames] = useState<Subname[]>([]);
   const [basename, setbasename] = useState(searchParams?.get("name") || "");
+  const [loading, setLoading] = useState(true);
   const [resolver, setResolver] = useState("");
   const [isEnable, setIsEnable] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
   const [offchainNames, setOffchainNames] = useState(0);
   const account = useAccount();
 
-  console.log({ basename, offchainNames });
+  console.log(searchParams.get("name"));
+  useEffect(() => {
+    if (searchParams.get("name")) {
+      setbasename(searchParams.get("name") || "");
+    }
+  }, [searchParams]);
 
   const goodResolvers = [
     "0x7CE6Cf740075B5AF6b1681d67136B84431B43AbD",
@@ -53,6 +61,7 @@ export default function Home() {
         setIsEnable(true);
       } else {
         setIsEnable(false);
+        setLoading(false);
       }
     } catch (error) {
       console.error("Error fetching resolver:", error);
@@ -65,6 +74,7 @@ export default function Home() {
         `/api/get-subnames?name=${basename}&address=${account.address}`
       );
 
+      setLoading(false);
       if (response.ok) {
         setHasApiKey(true);
         const displayedData = await response.json();
@@ -91,8 +101,6 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [basename, isEnable]); // Dependency array includes `name`
 
-  console.log(resolver, isEnable);
-
   return (
     <main className="flex min-h-screen flex-col px-2 sm:px-8 max-w-5xl mx-auto">
       {/* Nav Bar */}
@@ -113,7 +121,9 @@ export default function Home() {
                 </span>
               </div>
               <div className="text-xl font-mono text-blue-600">
-                {!isEnable
+                {loading
+                  ? "Loading..."
+                  : !isEnable
                   ? "Incorrect Resolver"
                   : !hasApiKey
                   ? "Missing API Key"
@@ -136,14 +146,22 @@ export default function Home() {
             />
           </div>
           <hr className="my-4" />
-          {!isEnable && <SwitchResolverMessage basename={basename} />}
-          {isEnable && !hasApiKey && (
+          {!loading && !isEnable && (
+            <SwitchResolverMessage basename={basename} />
+          )}
+          {!loading && isEnable && !hasApiKey && (
             <GetApiKeyMessage
               basename={basename}
               address={account.address || ""}
+              fetchSubnames={fetchSubnames}
             />
           )}
-          {isEnable && !hasApiKey && <EnterApiKeyMessage basename={basename} />}
+          {!loading && isEnable && !hasApiKey && (
+            <EnterApiKeyMessage
+              basename={basename}
+              fetchSubnames={fetchSubnames}
+            />
+          )}
           <div className="grid sm:grid-cols-2 grid-cols-2 gap-4">
             {subnames.map((name, index) => (
               <NameCard key={index} name={name} basename={basename} />
@@ -389,6 +407,7 @@ async function manageSubname({
       const data = await response.json();
       console.log(`Subname method ${method} executed successfully:`, data);
       // Handle the response data as needed
+      window.location.reload();
     } else {
       console.error(`Failed to execute ${method} for subname`);
       // Handle the error case
@@ -416,9 +435,11 @@ function SwitchResolverMessage({ basename }: { basename: string }) {
 function GetApiKeyMessage({
   basename,
   address,
+  fetchSubnames,
 }: {
   basename: string;
   address: string;
+  fetchSubnames: () => void;
 }) {
   const [buttonText, setButtonText] = useState("Get Key");
   function getApiKey() {
@@ -428,6 +449,7 @@ function GetApiKeyMessage({
         if (response.ok) {
           console.log("API key fetched successfully");
           setButtonText("Key Fetched");
+          fetchSubnames();
         } else {
           console.error("Failed to fetch API key");
           setButtonText("Failed to fetch key");
@@ -447,14 +469,24 @@ function GetApiKeyMessage({
   );
 }
 
-function EnterApiKeyMessage({ basename }: { basename: string }) {
+function EnterApiKeyMessage({
+  basename,
+  fetchSubnames,
+}: {
+  basename: string;
+  fetchSubnames: () => void;
+}) {
   return (
     <div className="flex mb-4 text-orange-500 text-sm rounded-lg p-3 items-center justify-between w-full h-14 bg-orange-50">
       <div className="flex items-center gap-2">
         <ExclamationTriangleIcon width={16} height={16} />
         Managed name through namestone? Enter your API key.
       </div>
-      <ApiKeyModal basename={basename} trigger={<Button>Enter Key</Button>} />
+      <ApiKeyModal
+        basename={basename}
+        fetchSubames={fetchSubnames}
+        trigger={<Button>Enter Key</Button>}
+      />
     </div>
   );
 }

@@ -50,9 +50,11 @@ const publicClient = createPublicClient({
 export function ApiKeyModal({
   basename,
   trigger,
+  fetchSubames,
 }: {
   basename: string;
   trigger: React.ReactNode;
+  fetchSubames: () => void;
 }) {
   const [buttonText, setButtonText] = useState("Update");
   const [isOpen, setIsOpen] = useState(false);
