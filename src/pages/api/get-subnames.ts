@@ -5,6 +5,7 @@ import { addEnsContracts } from "@ensdomains/ensjs";
 import { mainnet } from "viem/chains";
 import { createPublicClient, http } from "viem";
 import sql from "../../lib/db";
+import { getToken } from "next-auth/jwt";
 
 const client = createPublicClient({
   chain: addEnsContracts(mainnet),
@@ -21,9 +22,14 @@ export default async function handler(
     return;
   }
 
+  const token = await getToken({ req });
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized. Please refresh." });
+  }
+
   const params = new URLSearchParams(req.url?.split("?")[1]);
   const name = params.get("name");
-  const address = params.get("address");
+  const address = token?.sub as string;
   // get api key from database
   const apiKeyQuery = await sql`
     select api_key from "ApiKey" where

@@ -1,5 +1,6 @@
 import sql from "../../lib/db";
 import { NextApiRequest, NextApiResponse } from "next";
+import { getToken } from "next-auth/jwt";
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,9 +11,13 @@ export default async function handler(
     res.status(405).json({ error: "Method not allowed" });
     return;
   }
+  const token = await getToken({ req });
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized. Please refresh." });
+  }
 
   const params = new URLSearchParams(req.url?.split("?")[1]);
-  const address = params.get("address");
+  const address = sub.token as string;
   const domain = params.get("domain");
   const apiKey = params.get("api_key");
 

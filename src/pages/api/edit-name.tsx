@@ -1,6 +1,7 @@
 // pages/api/namestone-set-name.ts
 import { NextApiRequest, NextApiResponse } from "next";
 import sql from "../../lib/db";
+import { getToken } from "next-auth/jwt";
 
 async function makeRequest(url: string, apiKey: string, body: any) {
   try {
@@ -34,12 +35,18 @@ export default async function handler(
     return;
   }
 
+  const token = await getToken({ req });
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized. Please refresh." });
+  }
+
   const { method, ...body } = req.body;
+  const address = token.sub as string;
 
   // get api key from database
   const apiKeyQuery = await sql`
     select api_key from "ApiKey" where
-    address = ${body.address} and domain = ${body.domain}
+    address = ${address} and domain = ${body.domain}
   `;
   console.log("API Key Query:", apiKeyQuery);
   const apiKey = apiKeyQuery[0]?.api_key;
@@ -79,7 +86,7 @@ export default async function handler(
         {
           domain: body.domain,
           name: body.originalName,
-          address: body.address,
+          address: address,
         }
       );
 

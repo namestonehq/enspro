@@ -4,6 +4,7 @@ import { batch, getResolver } from "@ensdomains/ensjs/public";
 import { mainnet } from "viem/chains";
 import { createPublicClient, http, isAddress } from "viem";
 import { NextApiRequest, NextApiResponse } from "next";
+import { getToken } from "next-auth/jwt";
 
 const client = createPublicClient({
   chain: addEnsContracts(mainnet),
@@ -26,8 +27,13 @@ export default async function handler(
     return;
   }
 
+  const token = await getToken({ req });
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized. Please refresh." });
+  }
+
   const params = new URLSearchParams(req.url?.split("?")[1]);
-  const address = params.get("address");
+  const address = token.sub as string;
 
   if (!address || !isAddress(address)) {
     res.status(400).json({ error: "Missing address" });
