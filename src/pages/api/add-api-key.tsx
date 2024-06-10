@@ -17,7 +17,7 @@ export default async function handler(
   }
 
   const params = new URLSearchParams(req.url?.split("?")[1]);
-  const address = sub.token as string;
+  const address = token.sub as string;
   const domain = params.get("domain");
   const apiKey = params.get("api_key");
 
