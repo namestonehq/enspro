@@ -91,35 +91,28 @@ export default function NameTable({
   const emptyRows = itemsPerPage - displayedNames.length;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex text-white flex-col h-full">
       <RadioGroup value={selectedName} onValueChange={onSelectName}>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Expiration</TableHead>
+              <TableHead className=" text-neutral-300">Name</TableHead>
+              <TableHead className=" text-neutral-300">Expiration</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {displayedNames.map((name) => (
               <TableRow
                 className={`h-10 cursor-pointer  ${
-                  selectedName === name.name ? "bg-gray-100  " : ""
+                  selectedName === name.name
+                    ? " bg-neutral-700  border-emerald-400 text-emerald-400  "
+                    : ""
                 }`}
                 key={name.name}
                 onClick={() => handleRowClick(name.name)}
               >
                 <TableCell className="font-medium flex  justify-between ">
-                  <div className="flex items-center">
-                    <Label
-                      className={`cursor-pointer h-4 truncate max-w-[200px] `}
-                    >
-                      {name.name}
-                    </Label>
-                  </div>
-                  <div className=" text-slate-400">
-                    {name.status && <CheckIcon />}{" "}
-                  </div>
+                  {name.name}
                 </TableCell>
 
                 <TableCell>
@@ -151,7 +144,9 @@ export default function NameTable({
               <PaginationItem key={index} className="cursor-pointer">
                 <PaginationLink
                   onClick={() => handlePageChange(index + 1)}
-                  className={currentPage === index + 1 ? "bg-gray-300" : ""}
+                  className={
+                    currentPage === index + 1 ? "  bg-neutral-600 " : ""
+                  }
                 >
                   {index + 1}
                 </PaginationLink>
