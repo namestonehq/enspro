@@ -70,18 +70,16 @@ const Home: NextPage = () => {
 
   return (
     <div className="bg-grid bg-neutral-900 -z-20">
-      <div className=" bg-neutral-900 h-16 absolute w-full z-10"></div>
+      {/* Nav Bar */}
+      <NavBar />
       <main className="flex min-h-screen flex-col px-2 sm:px-8 max-w-5xl mx-auto">
-        {/* Nav Bar */}
-        <NavBar />
         {/* Main Content */}
         <div className="flex  flex-col">
           {/* Box */}
           {address && authenticated ? (
-            <div className="flex mt-8 shadow-lg w-full sm:w-[800px] min-h-[480px] p-8 flex-col  bg-neutral-900 border  rounded mx-auto">
+            <div className="flex mt-8 shadow-lg w-full sm:w-[800px] min-h-[480px] p-8 flex-col  bg-neutral-800   rounded mx-auto">
               <div className="flex justify-between">
-                <div className="mb-4">Select a Name</div>
-                <div className="text-xs  text-neutral-300">{selectedName}</div>
+                <div className="mb-4 text-white">Select a Name</div>
               </div>
 
               <NameTable
