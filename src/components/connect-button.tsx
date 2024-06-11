@@ -9,6 +9,7 @@ import {
 import { Button } from "./ui/button";
 import { useAccount, useDisconnect, useEnsName } from "wagmi";
 import { Address } from "viem";
+import { signOut, useSession } from "next-auth/react";
 
 export const ConnectButton = () => {
   const { isConnecting, address, isConnected, chain } = useAccount();
@@ -16,7 +17,6 @@ export const ConnectButton = () => {
   const { openConnectModal } = useConnectModal();
   const { openAccountModal } = useAccountModal();
   const { openChainModal } = useChainModal();
-  const { disconnect } = useDisconnect();
 
   const ens = useEnsName({
     address,

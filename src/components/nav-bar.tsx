@@ -2,13 +2,8 @@
 import Link from "next/link";
 import { ConnectButton } from "./connect-button";
 import Image from "next/image";
-import { useEffect } from "react";
-import { useAccount, useSignMessage } from "wagmi";
 
 export default function NavBar() {
-  const { isConnected } = useAccount();
-  const { address } = useAccount();
-
   return (
     <div className="flex w-full z-20 py-4 justify-between items-center">
       {/* Logo */}
