@@ -1,4 +1,3 @@
-import { ConnectButton } from "../components/connect-button";
 import type { GetServerSideProps, NextPage } from "next";
 import { getServerSession } from "next-auth";
 import { getAuthOptions } from "./api/auth/[...nextauth]";
@@ -70,8 +69,8 @@ const Home: NextPage = () => {
   }, [address, authenticated]);
 
   return (
-    <div className="bg-grid -z-20">
-      <div className="bg-white h-16 absolute w-full z-10"></div>
+    <div className="bg-grid bg-neutral-900 -z-20">
+      <div className=" bg-neutral-900 h-16 absolute w-full z-10"></div>
       <main className="flex min-h-screen flex-col px-2 sm:px-8 max-w-5xl mx-auto">
         {/* Nav Bar */}
         <NavBar />
@@ -79,10 +78,10 @@ const Home: NextPage = () => {
         <div className="flex  flex-col">
           {/* Box */}
           {address && authenticated ? (
-            <div className="flex mt-8 shadow-lg w-full sm:w-[800px] min-h-[480px] p-8 flex-col bg-white border border-slate-200 rounded mx-auto">
+            <div className="flex mt-8 shadow-lg w-full sm:w-[800px] min-h-[480px] p-8 flex-col  bg-neutral-900 border  rounded mx-auto">
               <div className="flex justify-between">
                 <div className="mb-4">Select a Name</div>
-                <div className="text-xs  text-slate-300">{selectedName}</div>
+                <div className="text-xs  text-neutral-300">{selectedName}</div>
               </div>
 
               <NameTable
@@ -98,22 +97,26 @@ const Home: NextPage = () => {
               </Button>
             </div>
           ) : (
-            <div className="flex mt-8 items-center justify-center shadow-lg bg-white w-full sm:w-[800px] min-h-[480px] p-8 flex-col border border-slate-200 rounded mx-auto">
+            <div className="flex mt-8 items-center justify-center shadow-lg  bg-neutral-800 w-full sm:w-[800px] min-h-[480px] p-8 flex-col rounded mx-auto">
               <div>
                 {" "}
-                <Image src="/logo.svg" alt="Logo" width={40} height={40} />
+                <Image
+                  src="/enspro-icon.svg"
+                  alt="Logo"
+                  width={40}
+                  height={40}
+                />
               </div>
-              <div className="text-3xl text-slate-800 font-bold mt-4 mb-2">
-                Welcome to ENS/ONE
+              <div className="text-3xl  text-white font-bold mt-4 mb-2">
+                Welcome to ENS<span className=" text-emerald-500">PRO</span>
               </div>
-              <div className=" text-slate-500 mb-4">
+              <div className="  text-neutral-300 mb-4">
                 Your Personal Subname Manager
               </div>
-              <ConnectButton />
             </div>
           )}
         </div>
-        <div className="h-12 mx-auto my-6 border-l opacity-50 border-dashed border-slate-800"></div>
+        <div className="h-12 mx-auto my-6 border-l opacity-50 border-dashed border- bg-neutral-900"></div>
         <Faq />
       </main>
       <Footer />

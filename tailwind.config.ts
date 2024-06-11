@@ -18,7 +18,7 @@ const config = {
       },
     },
     extend: {
-      backgroundImage: { grid: "url('/background.svg')" },
+      backgroundImage: { grid: "url('/bg-grid.svg')" },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

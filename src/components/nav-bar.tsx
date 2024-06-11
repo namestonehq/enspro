@@ -12,16 +12,21 @@ export default function NavBar() {
   return (
     <div className="flex w-full z-20 py-4 justify-between items-center">
       {/* Logo */}
-      <div className="cursor-pointer">
-        <Link href="/" className="flex items-center">
+      <div className="cursor-pointer ">
+        <Link href="/" className="flex items-center ">
           <Image
-            className="mr-1"
-            src="/bw-logo.svg"
+            className="mr-2"
+            src="/enspro-icon.svg"
             alt="Logo"
-            width={16}
-            height={16}
+            width={24}
+            height={24}
           />
-          <span>ENS/ONE</span>
+          <span className="text-white text-lg">
+            ENS<span className=" text-emerald-500">Pro</span> |{" "}
+            <span className=" text-neutral-400">
+              Personal Subname Management
+            </span>
+          </span>
         </Link>
       </div>
       {/* Connect Button */}
