@@ -1,10 +1,10 @@
 export default function Faq() {
   return (
     <div className="flex gap-4 flex-col w-full sm:w-[800px]   mx-auto">
-      <div className="text-xl  text-white">What is ENS One?</div>
+      <div className="text-xl  text-white">What is ENS Pro?</div>
       <div className=" text-neutral-300  bg-neutral-900 bg-opacity-50">
         Imagine a place where you can organize all your ETH addresses by
-        labeling them with subnames. ENS One lets you add, edit, and remove
+        labeling them with subnames. ENS Pro lets you add, edit, and remove
         subnames on all of your addresses with{" "}
         <span className="font-bold">0 gas fees</span>.
       </div>
