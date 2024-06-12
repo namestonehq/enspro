@@ -51,6 +51,7 @@ const Home: NextPage = (props) => {
   };
   // Manage 'authenticated' as a state
 
+  console.log(names.length);
   const authenticated = session?.address ? true : false;
   console.log("USER", session, address, isConnected);
 
@@ -88,27 +89,33 @@ const Home: NextPage = (props) => {
             <div className="flex mt-8 shadow-lg w-full max-w-[800px] min-h-[480px] pb-0 p-8 flex-col  bg-neutral-800   rounded mx-auto">
               <div className="flex justify-between">
                 <div className="mb-4 text-lg font-bold text-white">
-                  Select a Name
+                  {names.length === 0 ? "" : "Select a Name"}
                 </div>
               </div>
-              {loading ? (
-                <div className="flex flex-col  justify-center items-center flex-1">
-                  <Image
-                    src="/loading-spinner.svg"
-                    alt="spinner"
-                    className="mr-2 text-white"
-                    width={32}
-                    height={32}
+              {
+                loading ? (
+                  <div className="flex flex-col  justify-center items-center flex-1">
+                    <Image
+                      src="/loading-spinner.svg"
+                      alt="spinner"
+                      className="mr-2 text-white"
+                      width={32}
+                      height={32}
+                    />
+                    <div className=" text-neutral-300 mt-4">
+                      Loading names...
+                    </div>
+                  </div>
+                ) : names.length === 0 ? (
+                  <NoNamesFound /> // Render this component when names array is empty
+                ) : (
+                  <NameTable
+                    names={names}
+                    selectedName={selectedName}
+                    onSelectName={handleSelectName}
                   />
-                  <div className=" text-neutral-300 mt-4">Loading names...</div>
-                </div>
-              ) : (
-                <NameTable
-                  names={names}
-                  selectedName={selectedName}
-                  onSelectName={handleSelectName}
-                />
-              )}
+                ) // Render this component when names array is not empty
+              }
             </div>
           ) : (
             <div className="flex mt-8 items-center justify-center shadow-lg  bg-neutral-800 w-full max-w-[800px] min-h-[480px] p-8 flex-col rounded mx-auto">
@@ -137,5 +144,24 @@ const Home: NextPage = (props) => {
     </div>
   );
 };
+
+function NoNamesFound() {
+  return (
+    <div className="flex gap-1 flex-col items-center text-neutral-300 flex-1 justify-center">
+      <Image src="/crying-face.svg" alt="Logo" width={60} height={60} />
+      <span className="text-white">No ENS names owned </span>{" "}
+      <span>
+        Connect another wallet or get a name at
+        <Link
+          target="_blank"
+          className=" text-emerald-400"
+          href="https://app.ens.domains/"
+        >
+          &nbsp;ens.domains
+        </Link>
+      </span>
+    </div>
+  );
+}
 
 export default Home;
