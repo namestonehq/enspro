@@ -7,12 +7,13 @@ import {
   useChainModal,
 } from "@rainbow-me/rainbowkit";
 import { Button } from "./ui/button";
-import { useAccount, useDisconnect, useEnsName } from "wagmi";
+import { useAccount, useEnsName } from "wagmi";
 import { Address } from "viem";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 export const ConnectButton = () => {
   const { isConnecting, address, isConnected, chain } = useAccount();
+  const { data: session } = useSession();
 
   const { openConnectModal } = useConnectModal();
   const { openAccountModal } = useAccountModal();
@@ -51,6 +52,17 @@ export const ConnectButton = () => {
       </Button>
     );
   }
+  if (!session)
+    return (
+      <Button
+        className={`${buttonWidth}`}
+        onClick={async () => {
+          openConnectModal?.();
+        }}
+      >
+        Sign In
+      </Button>
+    );
 
   return (
     <Button

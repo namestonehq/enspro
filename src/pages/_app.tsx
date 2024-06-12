@@ -16,7 +16,7 @@ import {
 import { config } from "../wagmi";
 
 const getSiweMessageOptions: GetSiweMessageOptions = () => ({
-  statement: "Sign in to ENSONE",
+  statement: "Sign in to ENS Pro",
 });
 
 const queryClient = new QueryClient();
