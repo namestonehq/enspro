@@ -50,13 +50,7 @@ const Home: NextPage = (props) => {
   // Manage 'authenticated' as a state
 
   const authenticated = session?.address ? true : false;
-
-  // UseEffect to sign out on disconnect
-  useEffect(() => {
-    if (!isConnected && authenticated) {
-      signOut();
-    }
-  }, [isConnected]);
+  console.log("USER", session, address, isConnected);
 
   useEffect(() => {
     const fetchNames = async () => {
