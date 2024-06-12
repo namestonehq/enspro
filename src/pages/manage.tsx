@@ -271,9 +271,11 @@ function NameCard({
           </DialogTitle>
         </DialogHeader>
         <div className="">
-          <Label htmlFor="subname" className="text-right text-white">
-            Subname
-          </Label>
+          <div className="mb-2">
+            <Label htmlFor="subname" className="text-right text-white">
+              Subname
+            </Label>
+          </div>
           <SubnameInput
             setSubname={setSubname}
             subname={subname}
@@ -282,15 +284,18 @@ function NameCard({
           />
         </div>
         <div className="">
-          <Label htmlFor="address" className="text-right text-white">
-            Address
-          </Label>
+          <div className="mb-2">
+            <Label htmlFor="address" className="text-right text-white">
+              Address
+            </Label>
+          </div>
           <Input
             id="address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="col-span-3 text-xs text-white"
+            className=" bg-neutral-750 focus-visible:ring-0 text-white rounded"
             disabled={name.nameType === "onchain"}
+            placeholder="0x123..."
           />
           <AddressCheck address={address} />
         </div>
@@ -299,12 +304,16 @@ function NameCard({
           <div className="flex w-full content-between justify-between">
             <Button
               variant="outline"
-              className=" text-red-500"
+              className=" hover:bg-red-400 border-red-400 border text-red-400 w-24"
               onClick={handleDeleteSubname}
             >
               Delete
             </Button>
-            <Button disabled={!isAddress(address)} onClick={handleEditSubname}>
+            <Button
+              className="w-24"
+              disabled={!isAddress(address)}
+              onClick={handleEditSubname}
+            >
               Save
             </Button>
           </div>
@@ -358,9 +367,12 @@ function AddSubnameModal({
         </DialogHeader>
 
         <div className="">
-          <Label htmlFor="subname" className="text-right text-white">
-            Subname
-          </Label>
+          <div className="mb-2">
+            <Label htmlFor="subname" className="text-right text-white">
+              Subname
+            </Label>
+          </div>
+
           <SubnameInput
             subname={subname}
             basename={basename}
@@ -368,20 +380,27 @@ function AddSubnameModal({
           />
         </div>
         <div className="">
-          <Label htmlFor="address" className="text-right text-white">
-            Address
-          </Label>
+          <div className="mb-2">
+            <Label htmlFor="address" className="text-right text-white">
+              Address
+            </Label>
+          </div>
           <Input
             id="address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="col-span-3 text-white font-mono text-sm"
+            className="col-span-3 focus-visible:ring-0 text-white font-mono text-sm bg-neutral-750 placeholder:text-nuetral-400 placeholder:text-sm"
+            placeholder="0x..."
           />
           <AddressCheck address={address} />
         </div>
 
         <DialogFooter>
-          <Button disabled={!isAddress(address)} onClick={handleAddSubname}>
+          <Button
+            className="w-24"
+            disabled={!isAddress(address)}
+            onClick={handleAddSubname}
+          >
             Save
           </Button>
         </DialogFooter>
@@ -408,20 +427,40 @@ function SubnameInput({
   subname: string;
   basename: string;
   disabled?: boolean;
-  nameType?: SubnameType;
+  nameType?: string; // Assuming 'SubnameType' is defined somewhere
   setSubname: (value: string) => void;
 }) {
+  // State to track if the input is focused
+  const [isFocused, setIsFocused] = useState(false);
+
+  // Function to handle focus
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
+  // Function to handle blur
+  const handleBlur = () => {
+    setIsFocused(false);
+  };
+
   return (
     <div className="flex">
       <Input
         id="subname"
-        className="border-r-0  text-white  focus-visible:ring-0 rounded-r-none"
+        className=" bg-neutral-750 focus-visible:ring-0 text-white rounded-r-none"
         value={subname}
         onChange={(e) => setSubname(e.target.value)}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         disabled={nameType === "onchain" || disabled}
+        placeholder="Enter Name"
       />
-      <div className="flex text-sm  px-2 rounded-l-none items-center border rounded-md shadow-sm border-l-0">
-        <span className="text-white opacity-70">.{basename}</span>
+      <div
+        className={`flex text-sm px-2 rounded-l-none items-center bg-neutral-750  rounded-md shadow-sm  ${
+          isFocused ? " text-emerald-400 " : " text-neutral-300"
+        }`}
+      >
+        <span>.{basename}</span>
       </div>
     </div>
   );
