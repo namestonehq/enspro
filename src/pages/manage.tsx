@@ -130,7 +130,7 @@ export default function Home() {
           </div>
 
           {/* Box */}
-          <div className="flex shadow-lg w-full sm:w-[800px] min-h-[480px]  bg-neutral-800  p-8 flex-col rounded mx-auto">
+          <div className="flex shadow-lg w-full max-w-[800px] min-h-[480px]  bg-neutral-800  p-8 flex-col rounded mx-auto">
             <div className="mb-4">
               <div className="flex justify-between">
                 <div className="text-white">{basename}</div>

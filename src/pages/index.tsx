@@ -77,7 +77,7 @@ const Home: NextPage = () => {
         <div className="flex  flex-col">
           {/* Box */}
           {address && authenticated ? (
-            <div className="flex mt-8 shadow-lg w-full sm:w-[800px] min-h-[480px] p-8 flex-col  bg-neutral-800   rounded mx-auto">
+            <div className="flex mt-8 shadow-lg w-full max-w-[800px] min-h-[480px] p-8 flex-col  bg-neutral-800   rounded mx-auto">
               <div className="flex justify-between">
                 <div className="mb-4 text-white">Select a Name</div>
               </div>
@@ -95,7 +95,7 @@ const Home: NextPage = () => {
               </Button>
             </div>
           ) : (
-            <div className="flex mt-8 items-center justify-center shadow-lg  bg-neutral-800 w-full sm:w-[800px] min-h-[480px] p-8 flex-col rounded mx-auto">
+            <div className="flex mt-8 items-center justify-center shadow-lg  bg-neutral-800 w-full max-w-[800px] min-h-[480px] p-8 flex-col rounded mx-auto">
               <div>
                 {" "}
                 <Image
