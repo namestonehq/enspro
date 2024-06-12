@@ -44,6 +44,8 @@ const Home: NextPage = (props) => {
   const [names, setNames] = useState<Name[]>([]);
   const { address, isConnected } = useAccount();
   const { data: session } = useSession();
+  const [loading, setLoading] = useState(true);
+
   const handleSelectName = (name: string) => {
     setSelectedName(name);
   };
@@ -56,7 +58,7 @@ const Home: NextPage = (props) => {
     const fetchNames = async () => {
       try {
         const response = await fetch(`/api/get-names?address=${address}`);
-
+        setLoading(false);
         if (response.ok) {
           const displayedData = await response.json();
           console.log(displayedData);
@@ -89,12 +91,24 @@ const Home: NextPage = (props) => {
                   Select a Name
                 </div>
               </div>
-
-              <NameTable
-                names={names}
-                selectedName={selectedName}
-                onSelectName={handleSelectName}
-              />
+              {loading ? (
+                <div className="flex flex-col  justify-center items-center flex-1">
+                  <Image
+                    src="/loading-spinner.svg"
+                    alt="spinner"
+                    className="mr-2 text-white"
+                    width={32}
+                    height={32}
+                  />
+                  <div className=" text-neutral-300 mt-4">Loading names...</div>
+                </div>
+              ) : (
+                <NameTable
+                  names={names}
+                  selectedName={selectedName}
+                  onSelectName={handleSelectName}
+                />
+              )}
             </div>
           ) : (
             <div className="flex mt-8 items-center justify-center shadow-lg  bg-neutral-800 w-full max-w-[800px] min-h-[480px] p-8 flex-col rounded mx-auto">

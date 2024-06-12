@@ -172,7 +172,9 @@ export default function Home() {
                   width={32}
                   height={32}
                 />
-                <div className=" text-neutral-300 mt-4">Loading names...</div>
+                <div className=" text-neutral-300 mt-4">
+                  Loading subnames...
+                </div>
               </div>
             ) : (
               <div>
