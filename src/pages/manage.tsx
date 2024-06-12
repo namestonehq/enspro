@@ -279,11 +279,7 @@ function NameCard({
             className="col-span-3 text-xs text-white"
             disabled={name.nameType === "onchain"}
           />
-          <div className="text-xs font-mono text-red-500 h-5">
-            {!isAddress(address) && address !== "" && (
-              <div className="">Invalid address</div>
-            )}
-          </div>
+          <AddressCheck address={address} />
         </div>
 
         <DialogFooter>
@@ -368,11 +364,7 @@ function AddSubnameModal({
             onChange={(e) => setAddress(e.target.value)}
             className="col-span-3 text-white font-mono text-sm"
           />
-          <div className="text-red-500 font-mono text-xs h-5">
-            {!isAddress(address) && address !== "" && (
-              <div className="">Invalid address</div>
-            )}
-          </div>
+          <AddressCheck address={address} />
         </div>
 
         <DialogFooter>
@@ -382,6 +374,14 @@ function AddSubnameModal({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function AddressCheck({ address }: { address: string }) {
+  return (
+    <div className="text-red-500 ml-1 mt-2 font-mono text-xs h-5">
+      {!isAddress(address) && address !== "" && <div>Invalid address</div>}
+    </div>
   );
 }
 
