@@ -17,12 +17,13 @@ import { use, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getResolver } from "@ensdomains/ensjs/public";
 import { addEnsContracts } from "@ensdomains/ensjs";
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { ExclamationTriangleIcon, ArrowLeftIcon } from "@radix-ui/react-icons";
 import { EnableModal } from "../components/EnableModal";
 import { ApiKeyModal } from "../components/ApiKeyModal";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
 import { isAddress } from "viem";
+import Footer from "../components/Footer";
 
 const client = createPublicClient({
   chain: addEnsContracts(mainnet),
@@ -109,91 +110,87 @@ export default function Home() {
   }, [basename, isEnable, refetch]); // Dependency array includes `name`
 
   return (
-    <main className="flex min-h-screen flex-col px-2 sm:px-8 max-w-5xl mx-auto">
+    <div className="bg-grid bg-neutral-900 -z-20">
       {/* Nav Bar */}
       <NavBar />
-      {/* Main Content */}
-      <div className="flex flex-col">
-        {/* Welcome */}
-        <div className="flex justify-between items-center">
-          <Button
-            onClick={() => {
-              router.push("/");
-            }}
-          >
-            Back
-          </Button>
-          <div className="text-center my-8">Personal Subname Management</div>
-          <div />
-        </div>
 
-        {/* Box */}
-        <div className="flex shadow-lg w-full sm:w-[800px] min-h-[480px] p-8 flex-col border border-slate-200 rounded mx-auto">
-          <div className="mb-4">
-            <div className="flex justify-between">
-              <div>
-                Subnames for
-                <span className=" bg-slate-100 py-1 px-2 rounded">
-                  {basename}
+      <main className="flex min-h-screen flex-col px-2 sm:px-8 max-w-5xl mx-auto">
+        {/* Main Content */}
+        <div className="flex  flex-col">
+          <div className="  lg:pl-16">
+            <Button
+              onClick={() => {
+                router.push("/");
+              }}
+              className="text-white hover:bg-neutral-800 self-start bg-transparent hover:text-emerald-500 hover:bg-transparent"
+            >
+              <ArrowLeftIcon />
+              Back
+            </Button>
+          </div>
+
+          {/* Box */}
+          <div className="flex shadow-lg w-full max-w-[800px] min-h-[480px]  bg-neutral-800  p-8 flex-col rounded mx-auto">
+            <div className="mb-4">
+              <div className="flex justify-between">
+                <div className="text-white">{basename}</div>
+                <div className="text-xl font-mono text-blue-600">
+                  {loading
+                    ? "Loading..."
+                    : !isEnable
+                    ? "Incorrect Resolver"
+                    : !hasApiKey
+                    ? "Missing API Key"
+                    : "Ready to Manage"}
+                </div>
+              </div>
+            </div>
+            <div className="w-full mt-8 flex text-white justify-between items-center">
+              <div className="">
+                Subnames{" "}
+                <span className=" text-neutral-300 text-sm">
+                  ({loading ? "loading..." : subnames.length}){" "}
                 </span>
               </div>
-              <div className="text-xl font-mono text-blue-600">
-                {loading
-                  ? "Loading..."
-                  : !isEnable
-                  ? "Incorrect Resolver"
-                  : !hasApiKey
-                  ? "Missing API Key"
-                  : "Ready to Manage"}
-              </div>
-              {/* <div className="flex items-center">
-                <Label htmlFor="api-key-input" className="mr-2">
-                  Key
-                </Label>
-                <ApiKeyInput value={apiKey} onChange={handleApiKeyChange} />
-              </div> */}
-            </div>
-          </div>
-          <div className="w-full mt-8 flex justify-between items-center">
-            <div className="font-mono text-sm">
-              Subnames: {loading ? "loading..." : subnames.length}
-            </div>
-            <AddSubnameModal
-              disabled={!isEnable || !hasApiKey}
-              basename={basename}
-              doRefetch={doRefetch}
-            />
-          </div>
-          <hr className="my-4" />
-          {!loading && !isEnable && (
-            <SwitchResolverMessage basename={basename} />
-          )}
-          {!loading && isEnable && !hasApiKey && (
-            <GetApiKeyMessage
-              basename={basename}
-              address={account.address || ""}
-              fetchSubnames={fetchSubnames}
-            />
-          )}
-          {!loading && isEnable && !hasApiKey && (
-            <EnterApiKeyMessage
-              basename={basename}
-              fetchSubnames={fetchSubnames}
-            />
-          )}
-          <div className="grid sm:grid-cols-2 grid-cols-2 gap-4">
-            {subnames.map((name, index) => (
-              <NameCard
-                key={index}
-                name={name}
+              <AddSubnameModal
+                disabled={!isEnable || !hasApiKey}
                 basename={basename}
                 doRefetch={doRefetch}
               />
-            ))}
+            </div>
+            <hr className="my-4" />
+            {!loading && !isEnable && (
+              <SwitchResolverMessage basename={basename} />
+            )}
+            {!loading && isEnable && !hasApiKey && (
+              <GetApiKeyMessage
+                basename={basename}
+                address={account.address || ""}
+                fetchSubnames={fetchSubnames}
+              />
+            )}
+            {!loading && isEnable && !hasApiKey && (
+              <EnterApiKeyMessage
+                basename={basename}
+                fetchSubnames={fetchSubnames}
+              />
+            )}
+            <div className="grid sm:grid-cols-2 grid-cols-2 gap-4">
+              {subnames.map((name, index) => (
+                <NameCard
+                  key={index}
+                  name={name}
+                  basename={basename}
+                  doRefetch={doRefetch}
+                />
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+        <div className="h-12 mx-auto my-6 border-l opacity-50 border-dashed border- bg-neutral-900"></div>
+      </main>
+      <Footer />
+    </div>
   );
 }
 
@@ -237,42 +234,32 @@ function NameCard({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className="cursor-pointer   w-80 p-4 flex flex-col border rounded  gap-2 hover:bg-slate-50">
+        <div className="cursor-pointer hover:bg-neutral-750  grow p-4 flex flex-col border border-neutral-750 rounded  gap-2 ">
           <div className="flex justify-between">
-            <div className="text-sm">{name?.name || ""}</div>
+            <div className="text-sm  ">
+              <span className="text-emerald-400">{name?.labelName || ""}.</span>
+              <span className="text-white">{basename || ""}</span>
+            </div>
             <div
-              className={`text-xs flex items-center rounded-lg px-2 ${
-                name?.nameType === "onchain"
-                  ? " bg-sky-50 text-sky-400"
-                  : " bg-orange-50 text-orange-400"
-              }`}
+              className={`text-xs flex items-center text-white/80 bg-neutral-600 rounded-lg  px-2`}
             >
               {name?.nameType}
             </div>
           </div>
-          <div className="text-xs text-slate-500  font-mono font-thin">
+          <div className="text-xs text-white  font-mono font-thin">
             {name?.resolvedAddress && shortenAddress(name.resolvedAddress)}
           </div>
         </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]  bg-neutral-800">
         <DialogHeader>
-          <DialogTitle className="flex">
+          <DialogTitle className="flex text-white">
             {name.nameType === "onchain" ? "View Subname" : "Edit Subname"}
           </DialogTitle>
         </DialogHeader>
         <div className="">
-          <Label htmlFor="subname" className="text-right">
+          <Label htmlFor="subname" className="text-right text-white">
             Subname
-            {/* <div
-              className={`text-xs flex items-center rounded-lg px-2 ${
-                name?.nameType === "onchain"
-                  ? " bg-sky-50 text-sky-400"
-                  : " bg-orange-50 text-orange-400"
-              }`}
-            >
-              {name?.nameType}
-            </div> */}
           </Label>
           <SubnameInput
             setSubname={setSubname}
@@ -282,19 +269,17 @@ function NameCard({
           />
         </div>
         <div className="">
-          <Label htmlFor="address" className="text-right">
+          <Label htmlFor="address" className="text-right text-white">
             Address
           </Label>
           <Input
             id="address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="col-span-3 text-xs"
+            className="col-span-3 text-xs text-white"
             disabled={name.nameType === "onchain"}
           />
-          {!isAddress(address) && address !== "" && (
-            <div className="text-red-500 text-xs">Invalid address</div>
-          )}
+          <AddressCheck address={address} />
         </div>
 
         <DialogFooter>
@@ -354,13 +339,13 @@ function AddSubnameModal({
           Add
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]  bg-neutral-800">
         <DialogHeader>
-          <DialogTitle>Add Subname</DialogTitle>
+          <DialogTitle className="text-white">Add Subname</DialogTitle>
         </DialogHeader>
 
         <div className="">
-          <Label htmlFor="subname" className="text-right">
+          <Label htmlFor="subname" className="text-right text-white">
             Subname
           </Label>
           <SubnameInput
@@ -370,18 +355,16 @@ function AddSubnameModal({
           />
         </div>
         <div className="">
-          <Label htmlFor="address" className="text-right">
+          <Label htmlFor="address" className="text-right text-white">
             Address
           </Label>
           <Input
             id="address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="col-span-3"
+            className="col-span-3 text-white font-mono text-sm"
           />
-          {!isAddress(address) && address !== "" && (
-            <div className="text-red-500 text-xs">Invalid address</div>
-          )}
+          <AddressCheck address={address} />
         </div>
 
         <DialogFooter>
@@ -391,6 +374,14 @@ function AddSubnameModal({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function AddressCheck({ address }: { address: string }) {
+  return (
+    <div className="text-red-500 ml-1 mt-2 font-mono text-xs h-5">
+      {!isAddress(address) && address !== "" && <div>Invalid address</div>}
+    </div>
   );
 }
 
@@ -411,13 +402,13 @@ function SubnameInput({
     <div className="flex">
       <Input
         id="subname"
-        className="border-r-0  focus-visible:ring-0 rounded-r-none"
+        className="border-r-0  text-white  focus-visible:ring-0 rounded-r-none"
         value={subname}
         onChange={(e) => setSubname(e.target.value)}
         disabled={nameType === "onchain" || disabled}
       />
       <div className="flex text-sm  px-2 rounded-l-none items-center border rounded-md shadow-sm border-l-0">
-        <span className=" opacity-50">.{basename}</span>
+        <span className="text-white opacity-70">.{basename}</span>
       </div>
     </div>
   );
