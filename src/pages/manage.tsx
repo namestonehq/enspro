@@ -116,6 +116,15 @@ export default function Home() {
 
       <main className="flex min-h-screen flex-col px-2 sm:px-8 max-w-5xl mx-auto">
         {/* Main Content */}
+        <div className="text-xl absolute right-1 font-mono text-blue-600">
+          {loading
+            ? "Loading..."
+            : !isEnable
+            ? "Incorrect Resolver"
+            : !hasApiKey
+            ? "Missing API Key"
+            : "Ready to Manage"}
+        </div>
         <div className="flex  flex-col">
           <div className="  lg:pl-16">
             <Button
@@ -131,34 +140,27 @@ export default function Home() {
 
           {/* Box */}
           <div className="flex shadow-lg w-full max-w-[800px] min-h-[480px]  bg-neutral-800  p-8 flex-col rounded mx-auto">
-            <div className="mb-4">
-              <div className="flex justify-between">
-                <div className="text-white">{basename}</div>
-                <div className="text-xl font-mono text-blue-600">
-                  {loading
-                    ? "Loading..."
-                    : !isEnable
-                    ? "Incorrect Resolver"
-                    : !hasApiKey
-                    ? "Missing API Key"
-                    : "Ready to Manage"}
+            <div className="flex text-white justify-between items-center">
+              <div className="flex items-center">
+                <div className="text-white flex text-center text-lg font-bold items-center">
+                  {basename}
+                  <span className="text-neutral-300 ml-1 text-base font-normal">
+                    ({loading ? "loading..." : subnames.length})
+                  </span>
+                </div>
+              </div>
+              <div>
+                <div className="w-full flex text-white items-center">
+                  <AddSubnameModal
+                    disabled={!isEnable || !hasApiKey}
+                    basename={basename}
+                    doRefetch={doRefetch}
+                  />
                 </div>
               </div>
             </div>
-            <div className="w-full mt-8 flex text-white justify-between items-center">
-              <div className="">
-                Subnames{" "}
-                <span className=" text-neutral-300 text-sm">
-                  ({loading ? "loading..." : subnames.length}){" "}
-                </span>
-              </div>
-              <AddSubnameModal
-                disabled={!isEnable || !hasApiKey}
-                basename={basename}
-                doRefetch={doRefetch}
-              />
-            </div>
-            <hr className="my-4" />
+
+            <hr className="my-4  border-neutral-750" />
             {!loading && !isEnable && (
               <SwitchResolverMessage basename={basename} />
             )}
@@ -187,7 +189,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="h-12 mx-auto my-6 border-l opacity-50 border-dashed border- bg-neutral-900"></div>
       </main>
       <Footer />
     </div>
@@ -234,14 +235,26 @@ function NameCard({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className="cursor-pointer hover:bg-neutral-750  grow p-4 flex flex-col border border-neutral-750 rounded  gap-2 ">
+        <div className="cursor-pointer hover:bg-neutral-700 transition-colors  duration-300 bg-neutral-750  grow p-4 flex flex-col rounded  gap-2 ">
           <div className="flex justify-between">
             <div className="text-sm  ">
-              <span className="text-emerald-400">{name?.labelName || ""}.</span>
+              <span
+                className={`${
+                  name?.nameType === "offchain"
+                    ? "text-emerald-400"
+                    : "text-white/70"
+                }`}
+              >
+                {name?.labelName || ""}.
+              </span>
               <span className="text-white">{basename || ""}</span>
             </div>
             <div
-              className={`text-xs flex items-center text-white/80 bg-neutral-600 rounded-lg  px-2`}
+              className={`text-xs flex items-center  rounded-lg px-2 ${
+                name?.nameType === "offchain"
+                  ? "bg-emerald-500/15 text-emerald-400"
+                  : "bg-neutral-600 text-white/70"
+              }`}
             >
               {name?.nameType}
             </div>
@@ -335,7 +348,7 @@ function AddSubnameModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={disabled} className="text-sm w-12">
+        <Button disabled={disabled} className="text-sm w-24">
           Add
         </Button>
       </DialogTrigger>
