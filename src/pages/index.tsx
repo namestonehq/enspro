@@ -11,6 +11,8 @@ import { useAccount } from "wagmi";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   return {
@@ -19,6 +21,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     },
   };
 };
+
 type Name = {
   name: string;
   resolver?: string;
@@ -36,15 +39,18 @@ type Name = {
   };
 };
 
-const Home: NextPage = () => {
+const Home: NextPage = (props) => {
   const [selectedName, setSelectedName] = useState("");
   const [names, setNames] = useState<Name[]>([]);
-  const { address } = useAccount();
-  // Manage 'authenticated' as a state
-  const [authenticated, setAuthenticated] = useState(true);
+  const { address, isConnected } = useAccount();
+  const { data: session } = useSession();
   const handleSelectName = (name: string) => {
     setSelectedName(name);
   };
+  // Manage 'authenticated' as a state
+
+  const authenticated = session?.address ? true : false;
+  console.log("USER", session, address, isConnected);
 
   useEffect(() => {
     const fetchNames = async () => {
