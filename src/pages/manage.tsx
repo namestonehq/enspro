@@ -24,6 +24,7 @@ import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
 import { isAddress } from "viem";
 import Footer from "../components/Footer";
+import Image from "next/image";
 
 const client = createPublicClient({
   chain: addEnsContracts(mainnet),
@@ -149,6 +150,7 @@ export default function Home() {
                   </span>
                 </div>
               </div>
+
               <div>
                 <div className="w-full flex text-white items-center">
                   <AddSubnameModal
@@ -161,32 +163,47 @@ export default function Home() {
             </div>
 
             <hr className="my-4  border-neutral-750" />
-            {!loading && !isEnable && (
-              <SwitchResolverMessage basename={basename} />
-            )}
-            {!loading && isEnable && !hasApiKey && (
-              <GetApiKeyMessage
-                basename={basename}
-                address={account.address || ""}
-                fetchSubnames={fetchSubnames}
-              />
-            )}
-            {!loading && isEnable && !hasApiKey && (
-              <EnterApiKeyMessage
-                basename={basename}
-                fetchSubnames={fetchSubnames}
-              />
-            )}
-            <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
-              {subnames.map((name, index) => (
-                <NameCard
-                  key={index}
-                  name={name}
-                  basename={basename}
-                  doRefetch={doRefetch}
+            {loading ? (
+              <div className="flex flex-col  justify-center items-center flex-1">
+                <Image
+                  src="/loading-spinner.svg"
+                  alt="spinner"
+                  className="mr-2 text-white"
+                  width={32}
+                  height={32}
                 />
-              ))}
-            </div>
+                <div className=" text-neutral-300 mt-4">Loading names...</div>
+              </div>
+            ) : (
+              <div>
+                {!loading && !isEnable && (
+                  <SwitchResolverMessage basename={basename} />
+                )}
+                {!loading && isEnable && !hasApiKey && (
+                  <GetApiKeyMessage
+                    basename={basename}
+                    address={account.address || ""}
+                    fetchSubnames={fetchSubnames}
+                  />
+                )}
+                {!loading && isEnable && !hasApiKey && (
+                  <EnterApiKeyMessage
+                    basename={basename}
+                    fetchSubnames={fetchSubnames}
+                  />
+                )}
+                <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
+                  {subnames.map((name, index) => (
+                    <NameCard
+                      key={index}
+                      name={name}
+                      basename={basename}
+                      doRefetch={doRefetch}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>
