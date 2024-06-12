@@ -52,7 +52,7 @@ export const ConnectButton = () => {
       </Button>
     );
   }
-  if (!session)
+  if (!session || session.address !== userAddress)
     return (
       <Button
         className={`${buttonWidth}`}
