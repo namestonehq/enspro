@@ -32,7 +32,6 @@ export default async function handler(
     return res.status(401).json({ error: "Unauthorized. Please refresh." });
   }
 
-  const params = new URLSearchParams(req.url?.split("?")[1]);
   const address = token.sub as string;
 
   if (!address || !isAddress(address)) {

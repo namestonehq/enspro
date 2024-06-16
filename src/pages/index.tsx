@@ -14,14 +14,6 @@ import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  return {
-    props: {
-      session: await getServerSession(req, res, getAuthOptions(req)),
-    },
-  };
-};
-
 type Name = {
   name: string;
   resolver?: string;
@@ -39,7 +31,7 @@ type Name = {
   };
 };
 
-const Home: NextPage = (props) => {
+const Home: NextPage = () => {
   const [selectedName, setSelectedName] = useState("");
   const [names, setNames] = useState<Name[]>([]);
   const { address, isConnected } = useAccount();
@@ -49,8 +41,7 @@ const Home: NextPage = (props) => {
   };
   // Manage 'authenticated' as a state
 
-  const authenticated = session?.address ? true : false;
-  console.log("USER", session, address, isConnected);
+  const authenticated = session?.address === address ? true : false;
 
   useEffect(() => {
     const fetchNames = async () => {

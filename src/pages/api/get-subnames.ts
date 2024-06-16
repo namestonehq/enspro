@@ -34,6 +34,7 @@ export default async function handler(
   const apiKeyQuery = await sql`
     select api_key from "ApiKey" where
     address = ${address} and domain = ${name}
+    order by "createdAt" desc
   `;
   console.log("API Key Query:", apiKeyQuery);
 
