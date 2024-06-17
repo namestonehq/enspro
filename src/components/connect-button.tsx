@@ -34,7 +34,7 @@ export const ConnectButton = () => {
   if (!isConnected) {
     return (
       <Button
-        className={`${buttonWidth}`}
+        className={`${buttonWidth}  text-emerald-400 hover:bg-emerald-500/30  bg-emerald-500/15`}
         onClick={openConnectModal}
         disabled={isConnecting}
       >
@@ -45,7 +45,10 @@ export const ConnectButton = () => {
 
   if (isConnected && !chain) {
     return (
-      <Button className={`${buttonWidth}`} onClick={openChainModal}>
+      <Button
+        className={`${buttonWidth}  text-emerald-400 hover:bg-emerald-500/30  bg-emerald-500/15`}
+        onClick={openChainModal}
+      >
         Wrong network
       </Button>
     );
@@ -68,7 +71,7 @@ export const ConnectButton = () => {
 
   return (
     <Button
-      className={`${buttonWidth}`}
+      className={`${buttonWidth}  text-emerald-400 hover:bg-emerald-500/30  bg-emerald-500/15`}
       onClick={async () => {
         openAccountModal?.();
       }}

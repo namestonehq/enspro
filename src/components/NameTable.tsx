@@ -18,6 +18,9 @@ import {
   TableRow,
 } from "./ui/table";
 
+import { Button } from "./ui/button";
+import Link from "next/link";
+
 import { Label } from "./ui/label";
 import { Address } from "viem";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
@@ -91,7 +94,7 @@ export default function NameTable({
   const emptyRows = itemsPerPage - displayedNames.length;
 
   return (
-    <div className="flex text-white flex-col h-full">
+    <div className="flex text-white flex-col h-full ">
       <RadioGroup value={selectedName} onValueChange={onSelectName}>
         <Table>
           <TableHeader>
@@ -105,7 +108,7 @@ export default function NameTable({
               <TableRow
                 className={`h-10 cursor-pointer  ${
                   selectedName === name.name
-                    ? " bg-neutral-700  border-emerald-400 text-emerald-400  "
+                    ? " bg-neutral-700   text-emerald-400  "
                     : ""
                 }`}
                 key={name.name}
@@ -137,23 +140,32 @@ export default function NameTable({
         </Table>
       </RadioGroup>
       {/* Pagination */}
-      <div className="mt-4">
-        <Pagination>
-          <PaginationContent>
-            {Array.from({ length: totalPages }, (_, index) => (
-              <PaginationItem key={index} className="cursor-pointer">
-                <PaginationLink
-                  onClick={() => handlePageChange(index + 1)}
-                  className={
-                    currentPage === index + 1 ? "  bg-neutral-600 " : ""
-                  }
-                >
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-          </PaginationContent>
-        </Pagination>
+      <div className="flex justify-between mt-8">
+        <div>
+          <Pagination>
+            <PaginationContent className="">
+              {Array.from({ length: totalPages }, (_, index) => (
+                <PaginationItem key={index} className="cursor-pointer">
+                  <PaginationLink
+                    onClick={() => handlePageChange(index + 1)}
+                    className={
+                      currentPage === index + 1 ? "  bg-neutral-600 " : ""
+                    }
+                  >
+                    {index + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+            </PaginationContent>
+          </Pagination>
+        </div>
+
+        <div className="flex">
+          <Button disabled={selectedName == ""} className="w-32">
+            {" "}
+            <Link href={`/manage?name=${selectedName}`}>Manage Name</Link>
+          </Button>
+        </div>
       </div>
     </div>
   );

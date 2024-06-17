@@ -19,8 +19,8 @@ export default function NavBar() {
           <span className="text-white text-lg">
             ENS<span className=" text-emerald-500">Pro</span>
             <span className=" hidden sm:inline text-neutral-400">
-              <span className="text-white ml-1">|</span> Personal Subname
-              Management
+              <span className=" text-neutral-300 ml-2">|</span>{" "}
+              <span className="ml-2">Personal Subname Management</span>
             </span>
           </span>
         </Link>
