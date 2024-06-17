@@ -52,6 +52,7 @@ export default async function handler(
   }
 
   try {
+    console.log(client.chain.subgraphs.ens.url);
     const result = await client.getNamesForAddress({ address });
 
     const filteredResult: NameWithRelation[] = result.filter(
