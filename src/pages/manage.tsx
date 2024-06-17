@@ -227,6 +227,11 @@ function NameCard({
   const [address, setAddress] = useState(name.resolvedAddress || "");
   const [open, setOpen] = useState(false);
 
+  useEffect(() => {
+    setSubname(name.labelName || "");
+    setAddress(name.resolvedAddress || "");
+  }, [name]);
+
   const handleEditSubname = async () => {
     const originalName = name.labelName || ""; // The original subname
     await manageSubname({
@@ -468,7 +473,9 @@ function SubnameInput({
         id="subname"
         className=" bg-neutral-750 focus-visible:ring-0 text-white rounded-r-none"
         value={subname}
-        onChange={(e) => setSubname(e.target.value)}
+        onChange={(e) => {
+          setSubname(e.target.value);
+        }}
         onFocus={handleFocus}
         onBlur={handleBlur}
         disabled={nameType === "onchain" || disabled}
