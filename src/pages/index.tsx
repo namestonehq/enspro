@@ -34,7 +34,7 @@ type Name = {
 const Home: NextPage = () => {
   const [selectedName, setSelectedName] = useState("");
   const [names, setNames] = useState<Name[]>([]);
-  const { address, isConnected } = useAccount();
+  const { address, chain } = useAccount();
   const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
 
@@ -43,9 +43,7 @@ const Home: NextPage = () => {
   };
   // Manage 'authenticated' as a state
 
-
   const authenticated = session?.address === address ? true : false;
-
 
   useEffect(() => {
     const fetchNames = async () => {
@@ -64,10 +62,10 @@ const Home: NextPage = () => {
       }
     };
 
-    if (address && authenticated) {
+    if (address && authenticated && chain) {
       fetchNames();
     }
-  }, [address, authenticated]);
+  }, [address, authenticated, chain]);
 
   return (
     <div className="bg-grid bg-neutral-900 -z-20">
@@ -77,7 +75,7 @@ const Home: NextPage = () => {
         {/* Main Content */}
         <div className="flex  flex-col">
           {/* Box */}
-          {address && authenticated ? (
+          {address && authenticated && chain ? (
             <div className="flex mt-8 shadow-lg w-full max-w-[800px] min-h-[480px] pb-0 p-8 flex-col  bg-neutral-800   rounded mx-auto">
               <div className="flex justify-between">
                 <div className="mb-4 text-lg font-bold text-white">
