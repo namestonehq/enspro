@@ -7,7 +7,14 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
 
 const client = createPublicClient({
-  chain: addEnsContracts(mainnet),
+  chain: {
+    ...addEnsContracts(mainnet),
+    subgraphs: {
+      ens: {
+        url: process.env.SUBGRAPH_URL || "",
+      },
+    },
+  },
   transport: http(),
 }).extend(ensSubgraphActions);
 
