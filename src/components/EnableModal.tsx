@@ -192,12 +192,12 @@ function EnableButton({
             (response) => {
               if (response.ok) {
                 console.log("API key fetched successfully");
+                window.location.reload();
               } else {
                 console.error("Failed to fetch API key");
               }
             }
           );
-          window.location.reload();
         } catch (error) {
           // tx error
           setTxStatus("error");
