@@ -165,7 +165,44 @@ function EnableButton({
   async function handleClick() {
     if (!enabled) {
       if (resolver !== HYBRID_RESOLVER && account) {
-        await changeResolver({ domain, account, isNamewrapper, setTxStatus });
+        const wallet = createWalletClient({
+          chain: addEnsContracts(mainnet),
+          transport: custom(window.ethereum),
+        });
+
+        try {
+          setTxStatus("Changing resolver...");
+          const hash = await setResolver(wallet, {
+            name: domain,
+            contract: isNamewrapper ? "nameWrapper" : "registry",
+            resolverAddress: HYBRID_RESOLVER,
+            account: account,
+          });
+          setTxStatus("pending");
+          try {
+            const transaction = await publicClient.waitForTransactionReceipt({
+              hash,
+            });
+            setTxStatus("success");
+          } catch (error) {
+            setTxStatus("error");
+            console.error(error);
+          }
+          fetch(`/api/get-api-key?address=${account}&domain=${domain}`).then(
+            (response) => {
+              if (response.ok) {
+                console.log("API key fetched successfully");
+                window.location.reload();
+              } else {
+                console.error("Failed to fetch API key");
+              }
+            }
+          );
+        } catch (error) {
+          // tx error
+          setTxStatus("error");
+          console.error(error);
+        }
       }
     } else {
       router.push(`/manage?name=${domain}`);
@@ -187,66 +224,6 @@ function EnableButton({
       {buttonText}
     </Button>
   );
-}
-
-// Changes resolver based on the nameWrapper status
-async function changeResolver({
-  domain,
-  account,
-  isNamewrapper,
-  setTxStatus,
-}: {
-  domain: string;
-  account: Address;
-  isNamewrapper: boolean;
-  setTxStatus: (text: string) => void;
-}) {
-  const wallet = createWalletClient({
-    chain: addEnsContracts(mainnet),
-    transport: custom(window.ethereum),
-  });
-
-  try {
-    setTxStatus("Changing resolver...");
-    const hash = await setResolver(wallet, {
-      name: domain,
-      contract: isNamewrapper ? "nameWrapper" : "registry",
-      resolverAddress: HYBRID_RESOLVER,
-      account: account,
-    });
-    await handleTransaction({ hash: hash, setTxStatus: setTxStatus });
-  } catch (error) {
-    handleTransactionError({ error: error, setTxStatus: setTxStatus });
-  }
-}
-
-async function handleTransaction({
-  hash,
-  setTxStatus,
-}: {
-  hash: Hex;
-  setTxStatus: (text: string) => void;
-}) {
-  setTxStatus("pending");
-  try {
-    const transaction = await publicClient.waitForTransactionReceipt({ hash });
-    setTxStatus("success");
-    window.location.reload();
-  } catch (error) {
-    setTxStatus("error");
-    console.error(error);
-  }
-}
-
-async function handleTransactionError({
-  error,
-  setTxStatus,
-}: {
-  error: any;
-  setTxStatus: (text: string) => void;
-}) {
-  setTxStatus("error");
-  console.error(error);
 }
 
 function StatusDisplay({ status }: { status: string }) {

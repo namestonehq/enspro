@@ -35,8 +35,8 @@ export default async function handler(
   const params = new URLSearchParams(req.url?.split("?")[1]);
   const address = params.get("address");
   const domain = params.get("domain");
-  const name = "ensone";
-  const email = "hello@ensone.xyz";
+  const name = "enspro";
+  const email = "hello@enspro.xyz";
 
   let data;
   // get api key from namestone
