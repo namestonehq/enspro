@@ -198,7 +198,7 @@ export default function Home() {
                 <div>
                   {subnames.length === 0 && hasApiKey ? (
                     <div className="text-neutral-300 text-center flex-col flex mt-4">
-                      Click Add to create subnames
+                      Add subnames to manage them.
                     </div>
                   ) : (
                     <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
