@@ -64,6 +64,7 @@ export default function Home() {
   const fetchResolver = async () => {
     try {
       console.log("Fetching resolver for", basename);
+      setLoading(true);
       const result = await getResolver(client, { name: basename });
       setResolver(result as string);
       if (goodResolvers.includes(result || "")) {
