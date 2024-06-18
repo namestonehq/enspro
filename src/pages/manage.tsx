@@ -145,8 +145,20 @@ export default function Home() {
             <div className="flex text-white justify-between items-center">
               <div className="flex items-center">
                 <div className="text-white flex text-center text-lg font-bold items-center">
-                  {basename}
-                  <span className="text-neutral-300 ml-1 text-base font-normal">
+                  <div className="flex divide-x  divide-neutral-600 bg-neutral-750  rounded-md">
+                    <button className="p-2 px-3 rounded-md transition-colors duration-300 flex hover:rounded-tr-none hover:rounded-br-none rounded-tr-none  rounded-br-none hover:rounded-md hover:rounded-tl-md hover:bg-neutral-600 items-center">
+                      <Image
+                        width={18}
+                        height={18}
+                        src="/edit-icon.svg"
+                        alt="edit name"
+                      />
+                    </button>
+                    <div className="p-2 text-base">
+                      <span className="mx-1 ">{basename}</span>
+                    </div>
+                  </div>
+                  <span className="text-neutral-300 ml-2 text-base font-normal">
                     ({loading ? "loading..." : subnames.length})
                   </span>
                 </div>
