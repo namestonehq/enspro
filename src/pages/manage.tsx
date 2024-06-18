@@ -195,15 +195,23 @@ export default function Home() {
                     fetchSubnames={fetchSubnames}
                   />
                 )}
-                <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
-                  {subnames.map((name, index) => (
-                    <NameCard
-                      key={index}
-                      name={name}
-                      basename={basename}
-                      doRefetch={doRefetch}
-                    />
-                  ))}
+                <div>
+                  {subnames.length === 0 && hasApiKey ? (
+                    <div className="text-neutral-300 text-center flex-col flex mt-4">
+                      Click Add to create subnames
+                    </div>
+                  ) : (
+                    <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
+                      {subnames.map((name, index) => (
+                        <NameCard
+                          key={index}
+                          name={name}
+                          basename={basename}
+                          doRefetch={doRefetch}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
