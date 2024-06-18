@@ -64,6 +64,7 @@ export default function Home() {
   const fetchResolver = async () => {
     try {
       console.log("Fetching resolver for", basename);
+      setLoading(true);
       const result = await getResolver(client, { name: basename });
       setResolver(result as string);
       if (goodResolvers.includes(result || "")) {
@@ -194,15 +195,23 @@ export default function Home() {
                     fetchSubnames={fetchSubnames}
                   />
                 )}
-                <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
-                  {subnames.map((name, index) => (
-                    <NameCard
-                      key={index}
-                      name={name}
-                      basename={basename}
-                      doRefetch={doRefetch}
-                    />
-                  ))}
+                <div>
+                  {subnames.length === 0 && hasApiKey ? (
+                    <div className="text-neutral-300 text-center flex-col flex mt-4">
+                      Add subnames to manage them.
+                    </div>
+                  ) : (
+                    <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
+                      {subnames.map((name, index) => (
+                        <NameCard
+                          key={index}
+                          name={name}
+                          basename={basename}
+                          doRefetch={doRefetch}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -317,7 +326,7 @@ function NameCard({
             id="address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className=" bg-neutral-750 focus-visible:ring-0 text-white rounded"
+            className=" bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded"
             disabled={name.nameType === "onchain"}
             placeholder="0x123..."
           />
@@ -413,7 +422,7 @@ function AddSubnameModal({
             id="address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="col-span-3 focus-visible:ring-0 text-white font-mono text-sm bg-neutral-750 placeholder:text-nuetral-400 placeholder:text-sm"
+            className="col-span-3 focus-visible:ring-0 text-white font-mono text-xs bg-neutral-750 placeholder:text-nuetral-400 placeholder:text-sm"
             placeholder="0x..."
           />
           <AddressCheck address={address} />
@@ -537,14 +546,25 @@ async function manageSubname({
 
 function SwitchResolverMessage({ basename }: { basename: string }) {
   return (
-    <div className="flex mb-4 text-indigo-500 text-sm rounded-lg p-3 items-center justify-between w-full h-14 bg-indigo-50">
+    <div className="flex mb-4 text-neutral-300 text-sm rounded-lg p-3 items-center justify-between w-full h-14 bg-neutral-700">
       <div className="flex items-center gap-2">
-        <ExclamationTriangleIcon width={16} height={16} />
+        <ExclamationTriangleIcon
+          className=" text-amber-300"
+          width={16}
+          height={16}
+        />
         Switch resolver to add subnames.
       </div>
       <EnableModal
         basename={basename}
-        trigger={<Button>Switch Resolver</Button>}
+        trigger={
+          <Button
+            variant="outline"
+            className=" border-green-500 hover:bg-emerald-500"
+          >
+            Switch Resolver
+          </Button>
+        }
       />
     </div>
   );

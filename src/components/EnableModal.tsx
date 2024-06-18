@@ -32,6 +32,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
+import { stat } from "fs";
 
 // *** Constants ***
 const HYBRID_RESOLVER = "0xd17347fA0a6eeC89a226c96a9ae354F785e94241";
@@ -57,6 +58,7 @@ export function EnableModal({
   const [isOpen, setIsOpen] = useState(false);
   const [isNameWrapper, setIsNameWrapper] = useState(false);
   const [txStatus, setTxStatus] = useState("");
+  const [txHash, setTxHash] = useState("");
   const [resolver, setResolver] = useState("");
   const [isResolverSet, setIsResolverSet] = useState(false);
   const account = useAccount();
@@ -87,11 +89,11 @@ export function EnableModal({
   return (
     <Dialog onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[520px]">
+      <DialogContent className="sm:max-w-[520px]  bg-neutral-800">
         <DialogHeader>
-          <DialogTitle>Update Resolver</DialogTitle>
-          <DialogDescription>
-            To use ENS/ONE a different resolver is required. We use a{" "}
+          <DialogTitle className="text-white mb-1">Switch Resolver</DialogTitle>
+          <DialogDescription className=" text-neutral-300">
+            Update your resolver to enable ENSPro. We use a{" "}
             <Link
               className="underline"
               href="https://etherscan.io/address/0x7CE6Cf740075B5AF6b1681d67136B84431B43AbD"
@@ -103,17 +105,19 @@ export function EnableModal({
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col">
-          <div className="flex mb-2 mt-4 font-bold gap-2 items-center">
+          <div className="flex text-white mb-2 mt-4 gap-2 items-center">
             Current Resolver
           </div>
-          <div className="rounded-lg w-full mb-2 ring-1 ring-slate-300 text-slate-400 pl-2 pr-4 py-2 font-mono text-sm bg-slate-50">
+          <div className="rounded-lg w-full mb-2 text-neutral-300 bg-neutral-700 ring-0 ring-slate-300 pl-2 pr-4 py-2 font-mono text-sm">
             {resolver || "Loading..."}
           </div>
         </div>
 
         <DialogFooter>
           <div className="flex justify-between w-full items-center">
-            <div>{txStatus && <StatusDisplay status={txStatus} />}</div>
+            <div>
+              {txStatus && <StatusDisplay txHash={txHash} status={txStatus} />}
+            </div>
             <EnableButton
               resolver={resolver}
               buttonText={buttonText}
@@ -126,6 +130,7 @@ export function EnableModal({
               enabled={isResolverSet}
               isNamewrapper={isNameWrapper}
               setTxStatus={setTxStatus}
+              setTxHash={setTxHash}
             />
           </div>
         </DialogFooter>
@@ -143,6 +148,7 @@ function EnableButton({
   account,
   isNamewrapper,
   setTxStatus,
+  setTxHash,
 }: {
   domain: string;
   buttonText: string;
@@ -152,6 +158,7 @@ function EnableButton({
   account: Address;
   isNamewrapper: boolean;
   setTxStatus: (text: string) => void;
+  setTxHash: (hash: string) => void;
 }) {
   const [showSpinner, setShowSpinner] = useState(false);
   const router = useRouter();
@@ -178,6 +185,7 @@ function EnableButton({
             resolverAddress: HYBRID_RESOLVER,
             account: account,
           });
+          setTxHash(hash);
           setTxStatus("pending");
           try {
             const transaction = await publicClient.waitForTransactionReceipt({
@@ -226,10 +234,38 @@ function EnableButton({
   );
 }
 
-function StatusDisplay({ status }: { status: string }) {
+function StatusDisplay({ status, txHash }: { status: string; txHash: string }) {
+  console.log("StatusDisplay", status, txHash);
   return (
-    <div className="flex items-center gap-2">
-      <span>{status}</span>
+    <div className="flex text-white items-center gap-2">
+      <span>
+        {txHash !== "" && (status === "pending" || status === "success") ? (
+          <div className="flex items-center">
+            {" "}
+            {status === "pending" && (
+              <Image
+                src="/loading-spinner.svg"
+                alt="spinner"
+                className="mr-2"
+                width={16}
+                height={16}
+              />
+            )}
+            Transaction {status}:{" "}
+            <Link target="_blank" href={`https://etherscan.io/tx/${txHash}`}>
+              <Image
+                src="/etherscan-logo.svg"
+                alt="etherscan"
+                className="ml-2"
+                width={14}
+                height={14}
+              />
+            </Link>{" "}
+          </div>
+        ) : (
+          <div>{status}</div>
+        )}{" "}
+      </span>
     </div>
   );
 }
