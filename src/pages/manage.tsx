@@ -5,6 +5,7 @@ import { Label } from "../components/ui/label";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -25,6 +26,7 @@ import { useRouter } from "next/navigation";
 import { isAddress } from "viem";
 import Footer from "../components/Footer";
 import Image from "next/image";
+import Link from "next/link";
 
 const client = createPublicClient({
   chain: addEnsContracts(mainnet),
@@ -145,8 +147,26 @@ export default function Home() {
             <div className="flex text-white justify-between items-center">
               <div className="flex items-center">
                 <div className="text-white flex text-center text-lg font-bold items-center">
-                  {basename}
-                  <span className="text-neutral-300 ml-1 text-base font-normal">
+                  <div className="flex divide-x  divide-neutral-600 bg-neutral-750  rounded-md">
+                    <EditNameModal
+                      basename={basename}
+                      trigger={
+                        <button className="p-2 px-3 rounded-md transition-colors duration-300 flex hover:rounded-tr-none hover:rounded-br-none rounded-tr-none  rounded-br-none hover:rounded-md hover:rounded-tl-md hover:bg-neutral-600 items-center">
+                          <Image
+                            width={18}
+                            height={18}
+                            src="/edit-icon.svg"
+                            alt="edit name"
+                          />
+                        </button>
+                      }
+                    />
+
+                    <div className="p-2 text-base">
+                      <span className="mx-1 ">{basename}</span>
+                    </div>
+                  </div>
+                  <span className="text-neutral-300 ml-2 text-base font-normal">
                     ({loading ? "loading..." : subnames.length})
                   </span>
                 </div>
@@ -625,5 +645,168 @@ function EnterApiKeyMessage({
         trigger={<Button>Enter Key</Button>}
       />
     </div>
+  );
+}
+
+function EditNameModal({
+  basename,
+  trigger,
+}: {
+  basename: string;
+  trigger: React.ReactNode;
+}) {
+  const [address, setAddress] = useState("");
+  const [description, setDescription] = useState("");
+  const [avatar, setAvatar] = useState("");
+  const [location, setLocation] = useState("");
+  const [x, setx] = useState("");
+  const [github, setGithub] = useState("");
+  const [discord, setDiscord] = useState("");
+  const [website, setWebsite] = useState("");
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DialogContent className="sm:max-w-[520px]  bg-neutral-800">
+        <DialogHeader>
+          <DialogTitle className="text-white mb-1 font-bold">
+            Edit Name
+          </DialogTitle>
+          <div className=" text-emerald-500 font-bold">{basename}</div>
+        </DialogHeader>
+        <div className="flex flex-col">
+          <div>
+            <div className="flex text-white text-sm font-bold mb-2 mt-2 gap-2 items-center">
+              Eth Address
+            </div>
+            <Input
+              id="address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className=" bg-neutral-750 focus-visible:ring-1 transition-shadow duration-300  placeholder:text-neutral-500  text-sm font-mono text-neutral-300 rounded"
+              // disabled={name.nameType === "onchain"}
+              placeholder="0x123..."
+            />
+            <AddressCheck address={address} />
+          </div>
+          <div>
+            <div className="flex text-white text-sm font-bold mb-2 mt-2 gap-2 items-center">
+              Description
+            </div>
+            <Input
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className=" bg-neutral-750 focus-visible:ring-1 transition-shadow duration-300  placeholder:text-neutral-500 text-sm  text-neutral-300 rounded"
+              // disabled={name.nameType === "onchain"}
+              placeholder="i'm a web3 developer"
+            />
+          </div>
+          <div className="mt-2">
+            <div className="flex text-white text-sm font-bold mb-2 mt-2 gap-2 items-center">
+              Avatar
+            </div>
+            <Input
+              id="avatar"
+              value={avatar}
+              onChange={(e) => setAvatar(e.target.value)}
+              className=" bg-neutral-750 focus-visible:ring-1 transition-shadow duration-300 placeholder:text-neutral-500 text-sm  text-neutral-300 rounded"
+              // disabled={name.nameType === "onchain"}
+              placeholder="url for avatar"
+            />
+          </div>
+          <div className="mt-2">
+            <div className="flex text-white text-sm font-bold mb-2 mt-2 gap-2 items-center">
+              Location
+            </div>
+            <Input
+              id="location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className=" bg-neutral-750 focus-visible:ring-1 transition-shadow duration-300 placeholder:text-neutral-500 text-sm  text-neutral-300 rounded"
+              // disabled={name.nameType === "onchain"}
+              placeholder="new york city"
+            />
+          </div>
+
+          <hr className="mt-5 mb-5 border-neutral-750" />
+          {/* LINKS */}
+          <div className="flex text-white text-sm font-bold mb-2 gap-2 items-center">
+            Links
+          </div>
+          <div className="relative mb-8">
+            <Image
+              className="absolute top-1/2 left-2 -translate-y-1/2"
+              src="icon-x.svg"
+              alt="x / twitter"
+              width={16}
+              height={16}
+            />
+            <Input
+              id="X"
+              value={x}
+              onChange={(e) => setx(e.target.value)}
+              className="bg-neutral-750  pl-8 text-sm focus-visible:ring-1 transition-shadow duration-300 text-neutral-300 placeholder:text-neutral-500 rounded "
+              // disabled={name.nameType === "onchain"}
+              placeholder="namestonehq"
+            />
+          </div>
+          <div className="relative mb-8">
+            <Image
+              className="absolute top-1/2 left-2 -translate-y-1/2"
+              src="icon-github.svg"
+              alt="github"
+              width={16}
+              height={16}
+            />
+            <Input
+              id="github"
+              value={location}
+              onChange={(e) => setGithub(e.target.value)}
+              className=" bg-neutral-750 text-sm pl-8 focus-visible:ring-1 transition-shadow duration-300  text-neutral-300 placeholder:text-neutral-500 rounded "
+              // disabled={name.nameType === "onchain"}
+              placeholder="resolverworks"
+            />
+          </div>
+          <div className="relative mb-8">
+            <Image
+              className="absolute top-1/2 left-2 -translate-y-1/2"
+              src="icon-discord.svg"
+              alt="discord"
+              width={16}
+              height={16}
+            />
+            <Input
+              id="discord"
+              value={discord}
+              onChange={(e) => setDiscord(e.target.value)}
+              className=" bg-neutral-750  pl-8 text-sm transition-shadow duration-300  focus-visible:ring-1  text-neutral-300 placeholder:text-neutral-500 rounded"
+              // disabled={name.nameType === "onchain"}
+              placeholder="slobo.eth"
+            />
+          </div>
+          <div className="relative mb-4">
+            <Image
+              className="absolute top-1/2 left-2 -translate-y-1/2"
+              src="icon-link.svg"
+              alt="website"
+              width={16}
+              height={16}
+            />
+            <Input
+              id="website"
+              value={location}
+              onChange={(e) => setWebsite(e.target.value)}
+              className=" bg-neutral-750 text-sm  pl-8  transition-shadow duration-300 focus-visible:ring-1  text-neutral-300 placeholder:text-neutral-500 rounded "
+              // disabled={name.nameType === "onchain"}
+              placeholder="www.namestone.xyz"
+            />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button className="w-24">Save</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
