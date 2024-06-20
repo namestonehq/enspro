@@ -28,8 +28,8 @@ import Footer from "../components/Footer";
 import Image from "next/image";
 import Link from "next/link";
 import _ from "lodash";
-
 import toast, { Toaster } from "react-hot-toast";
+
 const client = createPublicClient({
   batch: { multicall: true },
   chain: {
@@ -701,24 +701,6 @@ function EditNameModal({
     });
   }, [basename]);
 
-  function changeDomainInfo({
-    key,
-    value,
-    textRecord,
-  }: {
-    key: string;
-    value: string;
-    textRecord: boolean;
-  }) {
-    const tempDomainInfo = _.cloneDeep(domainInfo);
-    if (textRecord) {
-      tempDomainInfo["text_records"][key] = value;
-    } else {
-      tempDomainInfo[key] = value;
-    }
-    setDomainInfo(tempDomainInfo);
-  }
-
   function saveDomainInfo() {
     // Save domainInfo
     fetch(`/api/edit-domain`, {
@@ -759,13 +741,14 @@ function EditNameModal({
             <Input
               id="address"
               value={domainInfo?.address || ""}
-              onChange={(e) =>
-                changeDomainInfo({
-                  key: "address",
-                  value: e.target.value,
-                  textRecord: false,
-                })
-              }
+              onChange={(e) => {
+                const tempDomainInfo = _.cloneDeep(domainInfo);
+                if (!tempDomainInfo) {
+                  return;
+                }
+                tempDomainInfo.address = e.target.value;
+                setDomainInfo(tempDomainInfo);
+              }}
               className=" bg-neutral-750 focus-visible:ring-1 transition-shadow duration-300  placeholder:text-neutral-500  text-sm font-mono text-neutral-300 rounded"
               // disabled={name.nameType === "onchain"}
               placeholder="0x123..."
@@ -780,11 +763,12 @@ function EditNameModal({
               id="description"
               value={domainInfo?.text_records?.description || ""}
               onChange={(e) => {
-                changeDomainInfo({
-                  key: "description",
-                  value: e.target.value,
-                  textRecord: true,
-                });
+                const tempDomainInfo = _.cloneDeep(domainInfo);
+                if (!tempDomainInfo) {
+                  return;
+                }
+                tempDomainInfo.description = e.target.value;
+                setDomainInfo(tempDomainInfo);
               }}
               className=" bg-neutral-750 focus-visible:ring-1 transition-shadow duration-300  placeholder:text-neutral-500 text-sm  text-neutral-300 rounded"
               // disabled={name.nameType === "onchain"}
@@ -799,11 +783,12 @@ function EditNameModal({
               id="avatar"
               value={domainInfo?.text_records?.avatar || ""}
               onChange={(e) => {
-                changeDomainInfo({
-                  key: "avatar",
-                  value: e.target.value,
-                  textRecord: true,
-                });
+                const tempDomainInfo = _.cloneDeep(domainInfo);
+                if (!tempDomainInfo) {
+                  return;
+                }
+                tempDomainInfo.text_records.avatar = e.target.value;
+                setDomainInfo(tempDomainInfo);
               }}
               className=" bg-neutral-750 focus-visible:ring-1 transition-shadow duration-300 placeholder:text-neutral-500 text-sm  text-neutral-300 rounded"
               // disabled={name.nameType === "onchain"}
@@ -818,11 +803,12 @@ function EditNameModal({
               id="location"
               value={domainInfo?.text_records?.location || ""}
               onChange={(e) => {
-                changeDomainInfo({
-                  key: "location",
-                  value: e.target.value,
-                  textRecord: true,
-                });
+                const tempDomainInfo = _.cloneDeep(domainInfo);
+                if (!tempDomainInfo) {
+                  return;
+                }
+                tempDomainInfo.text_records.location = e.target.value;
+                setDomainInfo(tempDomainInfo);
               }}
               className=" bg-neutral-750 focus-visible:ring-1 transition-shadow duration-300 placeholder:text-neutral-500 text-sm  text-neutral-300 rounded"
               // disabled={name.nameType === "onchain"}
@@ -847,11 +833,12 @@ function EditNameModal({
               id="X"
               value={domainInfo?.text_records?.["com.twitter"] || ""}
               onChange={(e) => {
-                changeDomainInfo({
-                  key: "com.twitter",
-                  value: e.target.value,
-                  textRecord: true,
-                });
+                const tempDomainInfo = _.cloneDeep(domainInfo);
+                if (!tempDomainInfo) {
+                  return;
+                }
+                tempDomainInfo.text_records["com.twitter"] = e.target.value;
+                setDomainInfo(tempDomainInfo);
               }}
               className="bg-neutral-750  pl-8 text-sm focus-visible:ring-1 transition-shadow duration-300 text-neutral-300 placeholder:text-neutral-500 rounded "
               // disabled={name.nameType === "onchain"}
@@ -870,11 +857,12 @@ function EditNameModal({
               id="github"
               value={domainInfo?.text_records?.["com.github"] || ""}
               onChange={(e) => {
-                changeDomainInfo({
-                  key: "com.github",
-                  value: e.target.value,
-                  textRecord: true,
-                });
+                const tempDomainInfo = _.cloneDeep(domainInfo);
+                if (!tempDomainInfo) {
+                  return;
+                }
+                tempDomainInfo.text_records["com.github"] = e.target.value;
+                setDomainInfo(tempDomainInfo);
               }}
               className=" bg-neutral-750 text-sm pl-8 focus-visible:ring-1 transition-shadow duration-300  text-neutral-300 placeholder:text-neutral-500 rounded "
               // disabled={name.nameType === "onchain"}
@@ -893,11 +881,12 @@ function EditNameModal({
               id="discord"
               value={domainInfo?.text_records?.["com.discord"] || ""}
               onChange={(e) => {
-                changeDomainInfo({
-                  key: "com.discord",
-                  value: e.target.value,
-                  textRecord: true,
-                });
+                const tempDomainInfo = _.cloneDeep(domainInfo);
+                if (!tempDomainInfo) {
+                  return;
+                }
+                tempDomainInfo.text_records["com.discord"] = e.target.value;
+                setDomainInfo(tempDomainInfo);
               }}
               className=" bg-neutral-750  pl-8 text-sm transition-shadow duration-300  focus-visible:ring-1  text-neutral-300 placeholder:text-neutral-500 rounded"
               // disabled={name.nameType === "onchain"}
@@ -916,11 +905,12 @@ function EditNameModal({
               id="website"
               value={domainInfo?.text_records?.url || ""}
               onChange={(e) => {
-                changeDomainInfo({
-                  key: "url",
-                  value: e.target.value,
-                  textRecord: true,
-                });
+                const tempDomainInfo = _.cloneDeep(domainInfo);
+                if (!tempDomainInfo) {
+                  return;
+                }
+                tempDomainInfo.text_records.url = e.target.value;
+                setDomainInfo(tempDomainInfo);
               }}
               className=" bg-neutral-750 text-sm  pl-8  transition-shadow duration-300 focus-visible:ring-1  text-neutral-300 placeholder:text-neutral-500 rounded "
               placeholder="www.namestone.xyz"
