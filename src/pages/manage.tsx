@@ -767,7 +767,7 @@ function EditNameModal({
                 if (!tempDomainInfo) {
                   return;
                 }
-                tempDomainInfo.description = e.target.value;
+                tempDomainInfo.text_records.description = e.target.value;
                 setDomainInfo(tempDomainInfo);
               }}
               className=" bg-neutral-750 focus-visible:ring-1 transition-shadow duration-300  placeholder:text-neutral-500 text-sm  text-neutral-300 rounded"
