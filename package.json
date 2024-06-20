@@ -18,6 +18,7 @@
     "@rainbow-me/rainbowkit": "workspace:*",
     "@rainbow-me/rainbowkit-siwe-next-auth": "workspace:*",
     "@tanstack/react-query": "^5.28.4",
+    "@types/lodash": "^4.17.5",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "ethers": "^5.6.8",
