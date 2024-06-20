@@ -288,7 +288,7 @@ function NameCard({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className="cursor-pointer hover:bg-neutral-700 transition-colors  duration-300 bg-neutral-750  grow p-4 flex flex-col rounded  gap-2 ">
+        <div className="cursor-pointer group hover:bg-neutral-700 transition-colors  duration-300 bg-neutral-750  grow p-4 flex flex-col rounded  gap-2 ">
           <div className="flex justify-between">
             <div className="text-sm  ">
               <span
@@ -312,8 +312,40 @@ function NameCard({
               {name?.nameType}
             </div>
           </div>
-          <div className="text-xs text-white  font-mono font-thin">
+          <div className="text-xs text-white flex justify-between  font-mono font-thin">
             {name?.resolvedAddress && shortenAddress(name.resolvedAddress)}
+            <div className="group-hover:opacity-100  opacity-0 transition-opacity duration-300">
+              <div className="flex gap-2">
+                <Link
+                  href={`https://app.ens.domains/name/${name.name}`}
+                  target="_blank"
+                  className="z-50"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Image
+                    src="/icon-ens.svg"
+                    alt="ens icon"
+                    width={16}
+                    height={16}
+                    className="hover:opacity-80 transition-opacity duration-300"
+                  />
+                </Link>
+                <Link
+                  href={`https://etherscan.io/address/${address}`}
+                  target="_blank"
+                  className="z-50"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Image
+                    src="/icon-etherscan.svg"
+                    alt="etherscan icon"
+                    width={16}
+                    height={16}
+                    className="hover:opacity-80 transition-opacity duration-300"
+                  />
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </DialogTrigger>
@@ -666,7 +698,7 @@ function EditNameModal({
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[520px]  bg-neutral-800">
+      <DialogContent className="sm:max-w-[520px] max-h-[420px] overflow-y-auto  bg-neutral-800">
         <DialogHeader>
           <DialogTitle className="text-white mb-1 font-bold">
             Edit Name
