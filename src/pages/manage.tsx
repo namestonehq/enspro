@@ -27,8 +27,6 @@ import { isAddress } from "viem";
 import Footer from "../components/Footer";
 import Image from "next/image";
 import Link from "next/link";
-import { normalize } from "viem/ens";
-import { getDomainInfo } from "../lib/utils";
 import _ from "lodash";
 
 import toast, { Toaster } from "react-hot-toast";
