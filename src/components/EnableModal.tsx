@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 // *** Wagmi/viem ***
 import { useAccount } from "wagmi";
@@ -15,12 +16,11 @@ import {
   Hex,
 } from "viem";
 import { mainnet } from "viem/chains";
-
+import { normalize } from "viem/ens";
 // *** ENS ***
 import { batch, getResolver, getOwner } from "@ensdomains/ensjs/public";
 import { addEnsContracts } from "@ensdomains/ensjs";
 import { setResolver } from "@ensdomains/ensjs/wallet";
-
 // *** UI Components ***
 import { Button } from "../components/ui/button";
 import {
@@ -32,26 +32,35 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { stat } from "fs";
-
+import { getOnchainDomainInfo } from "../lib/utils";
 // *** Constants ***
 const HYBRID_RESOLVER = "0xd17347fA0a6eeC89a226c96a9ae354F785e94241";
 
 const client = createClient({
-  chain: addEnsContracts(mainnet),
+  chain: {
+    ...addEnsContracts(mainnet),
+    subgraphs: {
+      ens: {
+        url: process.env.SUBGRAPH_URL || "",
+      },
+    },
+  },
   transport: http(),
 });
 
 const publicClient = createPublicClient({
+  batch: { multicall: true },
   chain: mainnet,
   transport: http(),
 });
 
 export function EnableModal({
   basename,
+  refetchSubnames,
   trigger,
 }: {
   basename: string;
+  refetchSubnames: () => void;
   trigger: React.ReactNode;
 }) {
   const [buttonText, setButtonText] = useState("Update");
@@ -122,6 +131,7 @@ export function EnableModal({
               resolver={resolver}
               buttonText={buttonText}
               domain={basename}
+              refetchSubnames={refetchSubnames}
               account={
                 account.address ||
                 ("0x0000000000000000000000000000000000000000" as Address)
@@ -141,6 +151,7 @@ export function EnableModal({
 
 function EnableButton({
   domain,
+  refetchSubnames,
   buttonText,
   setButtonText,
   resolver,
@@ -151,6 +162,7 @@ function EnableButton({
   setTxHash,
 }: {
   domain: string;
+  refetchSubnames: () => void;
   buttonText: string;
   setButtonText: (text: string) => void;
   resolver: string;
@@ -179,6 +191,8 @@ function EnableButton({
 
         try {
           setTxStatus("Changing resolver...");
+          const domainInfo = await getOnchainDomainInfo(domain);
+          console.log(domainInfo);
           const hash = await setResolver(wallet, {
             name: domain,
             contract: isNamewrapper ? "nameWrapper" : "registry",
@@ -200,7 +214,25 @@ function EnableButton({
             (response) => {
               if (response.ok) {
                 console.log("API key fetched successfully");
-                window.location.reload();
+                // set domain to domainInfo on namestone
+                // Save domainInfo
+                fetch(`/api/edit-domain`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    ...domainInfo,
+                  }),
+                }).then((response) => {
+                  if (response.ok) {
+                    console.log("Domain info saved successfully");
+                  } else {
+                    console.error("Failed to save domain info");
+                  }
+                });
+                refetchSubnames();
+                toast.success("Resolver changed successfully");
               } else {
                 console.error("Failed to fetch API key");
               }

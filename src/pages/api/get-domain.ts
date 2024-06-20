@@ -35,56 +35,25 @@ export default async function handler(
   }
 
   const params = new URLSearchParams(req.url?.split("?")[1]);
-  const name = params.get("name");
+  const domain = params.get("domain");
   const address = token?.sub as string;
+  console.log("Domain:", domain, "Address:", address);
   // get api key from database
   const apiKeyQuery = await sql`
     select api_key from "ApiKey" where
-    address = ${address} and domain = ${name}
+    address = ${address} and domain = ${domain}
     order by "createdAt" desc
   `;
-  console.log("API Key Query:", apiKeyQuery);
-
   if (apiKeyQuery.length === 0) {
+    console.log("API Key error");
     res.status(400).json({ error: "API key not found" });
     return;
   }
   const apiKey = apiKeyQuery[0].api_key;
 
   try {
-    const [onchainSubnames, offchainSubnames] = await Promise.all([
-      getSubnames(client, { name: name as string }),
-      fetchOffchainSubnames(name as string, apiKey),
-    ]);
-
-    const combinedSubnames = onchainSubnames.map((item: Name) => ({
-      ...item,
-      nameType: "onchain",
-    }));
-
-    if (Array.isArray(offchainSubnames) && offchainSubnames.length > 0) {
-      combinedSubnames.push(
-        ...offchainSubnames.map((item: any) => ({
-          ...item,
-          name: item.name + "." + item.domain,
-          nameType: "offchain",
-          resolvedAddress: item.address,
-          labelName: item.name,
-        }))
-      );
-    }
-
-    res.status(200).json(combinedSubnames);
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Failed to fetch subnames" });
-  }
-}
-
-async function fetchOffchainSubnames(domain: string, apiKey: string) {
-  try {
     const response = await fetch(
-      `https://namestone.xyz/api/public_v1/get-names?domain=${domain}`,
+      `https://namestone.xyz/api/public_v1/get-domain?domain=${domain}`,
       {
         method: "get",
         headers: {
@@ -96,7 +65,7 @@ async function fetchOffchainSubnames(domain: string, apiKey: string) {
 
     if (response.ok) {
       const data = await response.json();
-      return data;
+      res.status(200).json(data);
     } else {
       console.log("Response Status:", response.status);
 
@@ -104,13 +73,12 @@ async function fetchOffchainSubnames(domain: string, apiKey: string) {
         console.log("Received a 400 error, returning empty object.");
         return {};
       } else {
-        throw new Error(
-          `Failed to fetch off-chain subnames: Status ${response.status}`
-        );
+        console.error("Error fetching off-chain domain:", response.status);
+        res.status(500).json({ error: "Failed to off-chain domain" });
       }
     }
   } catch (error) {
-    console.error("Error fetching off-chain subnames:", error);
-    throw error;
+    console.error("Error fetching off-chain domain:", error);
+    res.status(500).json({ error: "Failed to off-chain domain" });
   }
 }

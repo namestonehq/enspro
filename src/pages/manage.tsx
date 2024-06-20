@@ -14,10 +14,10 @@ import {
 import NavBar from "../components/nav-bar";
 import { Address, createPublicClient, http } from "viem";
 import { mainnet } from "viem/chains";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getResolver } from "@ensdomains/ensjs/public";
-import { addEnsContracts } from "@ensdomains/ensjs";
+import { addEnsContracts, ensSubgraphActions } from "@ensdomains/ensjs";
 import { ExclamationTriangleIcon, ArrowLeftIcon } from "@radix-ui/react-icons";
 import { EnableModal } from "../components/EnableModal";
 import { ApiKeyModal } from "../components/ApiKeyModal";
@@ -27,13 +27,25 @@ import { isAddress } from "viem";
 import Footer from "../components/Footer";
 import Image from "next/image";
 import Link from "next/link";
+import { normalize } from "viem/ens";
+import { getDomainInfo } from "../lib/utils";
+import _ from "lodash";
 
+import toast, { Toaster } from "react-hot-toast";
 const client = createPublicClient({
-  chain: addEnsContracts(mainnet),
+  batch: { multicall: true },
+  chain: {
+    ...addEnsContracts(mainnet),
+    subgraphs: {
+      ens: {
+        url: process.env.SUBGRAPH_URL || "",
+      },
+    },
+  },
   transport: http(),
 });
 
-export default function Home() {
+export default function Manage() {
   const searchParams = useSearchParams();
   const [subnames, setSubnames] = useState<Subname[]>([]);
   const [basename, setbasename] = useState(searchParams?.get("name") || "");
@@ -46,7 +58,6 @@ export default function Home() {
   const account = useAccount();
   const router = useRouter();
 
-  console.log(searchParams.get("name"));
   useEffect(() => {
     if (searchParams.get("name")) {
       setbasename(searchParams.get("name") || "");
@@ -59,7 +70,7 @@ export default function Home() {
     "0x2291053F49Cd008306b92f84a61c6a1bC9B5CB65",
   ];
 
-  function doRefetch() {
+  function refetchSubnames() {
     setRefetch((prev) => prev + 1);
   }
 
@@ -103,7 +114,6 @@ export default function Home() {
     }
   };
 
-  // Effect to run fetchSubnames whenever `name` changes
   useEffect(() => {
     if (!basename) return; // Guard clause to prevent fetching with an empty name
     fetchResolver();
@@ -120,15 +130,7 @@ export default function Home() {
 
       <main className="flex min-h-screen flex-col px-2 sm:px-8 max-w-5xl mx-auto">
         {/* Main Content */}
-        <div className="text-xl absolute right-1 font-mono text-blue-600">
-          {loading
-            ? "Loading..."
-            : !isEnable
-            ? "Incorrect Resolver"
-            : !hasApiKey
-            ? "Missing API Key"
-            : "Ready to Manage"}
-        </div>
+
         <div className="flex  flex-col">
           <div className="  lg:pl-16">
             <Button
@@ -148,20 +150,21 @@ export default function Home() {
               <div className="flex items-center">
                 <div className="text-white flex text-center text-lg font-bold items-center">
                   <div className="flex divide-x  divide-neutral-600 bg-neutral-750  rounded-md">
-                    <EditNameModal
-                      basename={basename}
-                      trigger={
-                        <button className="p-2 px-3 rounded-md transition-colors duration-300 flex hover:rounded-tr-none hover:rounded-br-none rounded-tr-none  rounded-br-none hover:rounded-md hover:rounded-tl-md hover:bg-neutral-600 items-center">
-                          <Image
-                            width={18}
-                            height={18}
-                            src="/edit-icon.svg"
-                            alt="edit name"
-                          />
-                        </button>
-                      }
-                    />
-
+                    {hasApiKey && (
+                      <EditNameModal
+                        basename={basename}
+                        trigger={
+                          <button className="p-2 px-3 rounded-md transition-colors duration-300 flex hover:rounded-tr-none hover:rounded-br-none rounded-tr-none  rounded-br-none hover:rounded-md hover:rounded-tl-md hover:bg-neutral-600 items-center">
+                            <Image
+                              width={18}
+                              height={18}
+                              src="/edit-icon.svg"
+                              alt="edit name"
+                            />
+                          </button>
+                        }
+                      />
+                    )}
                     <div className="p-2 text-base">
                       <span className="mx-1 ">{basename}</span>
                     </div>
@@ -177,7 +180,7 @@ export default function Home() {
                   <AddSubnameModal
                     disabled={!isEnable || !hasApiKey}
                     basename={basename}
-                    doRefetch={doRefetch}
+                    refetchSubnames={refetchSubnames}
                   />
                 </div>
               </div>
@@ -200,7 +203,28 @@ export default function Home() {
             ) : (
               <div>
                 {!loading && !isEnable && (
-                  <SwitchResolverMessage basename={basename} />
+                  <div className="flex mb-4 text-neutral-300 text-sm rounded-lg p-3 items-center justify-between w-full h-14 bg-neutral-700">
+                    <div className="flex items-center gap-2">
+                      <ExclamationTriangleIcon
+                        className=" text-amber-300"
+                        width={16}
+                        height={16}
+                      />
+                      Switch resolver to add subnames.
+                    </div>
+                    <EnableModal
+                      basename={basename}
+                      refetchSubnames={refetchSubnames}
+                      trigger={
+                        <Button
+                          variant="outline"
+                          className=" border-green-500 hover:bg-emerald-500"
+                        >
+                          Switch Resolver
+                        </Button>
+                      }
+                    />
+                  </div>
                 )}
                 {!loading && isEnable && !hasApiKey && (
                   <GetApiKeyMessage
@@ -227,7 +251,7 @@ export default function Home() {
                           key={index}
                           name={name}
                           basename={basename}
-                          doRefetch={doRefetch}
+                          refetchSubnames={refetchSubnames}
                         />
                       ))}
                     </div>
@@ -246,11 +270,11 @@ export default function Home() {
 function NameCard({
   name,
   basename,
-  doRefetch,
+  refetchSubnames,
 }: {
   name: Subname;
   basename: string;
-  doRefetch: () => void;
+  refetchSubnames: () => void;
 }) {
   const [subname, setSubname] = useState(name.labelName || "");
   const [address, setAddress] = useState(name.resolvedAddress || "");
@@ -270,7 +294,7 @@ function NameCard({
       resolvedAddress: address as Address,
       originalName: originalName,
     });
-    doRefetch();
+    refetchSubnames();
     setOpen(false);
   };
 
@@ -281,7 +305,7 @@ function NameCard({
       basename: basename,
       resolvedAddress: address as Address,
     });
-    doRefetch();
+    refetchSubnames();
     setOpen(false);
   };
 
@@ -415,11 +439,11 @@ function shortenAddress(address: Address) {
 function AddSubnameModal({
   basename,
   disabled,
-  doRefetch,
+  refetchSubnames,
 }: {
   basename: string;
   disabled: boolean;
-  doRefetch: () => void;
+  refetchSubnames: () => void;
 }) {
   const [subname, setSubname] = useState("");
   const [address, setAddress] = useState("");
@@ -436,7 +460,7 @@ function AddSubnameModal({
     // Clear the input fields after adding the subname
     setSubname("");
     setAddress("");
-    doRefetch();
+    refetchSubnames();
     setOpen(false);
   };
   return (
@@ -586,41 +610,17 @@ async function manageSubname({
     if (response.ok) {
       const data = await response.json();
       console.log(`Subname method ${method} executed successfully:`, data);
+      toast.success(`Subname ${method} successful`);
     } else {
       console.error(`Failed to execute ${method} for subname`);
-      // Handle the error case
+      toast.error(`Failed to ${method} subname`);
     }
   } catch (error) {
     console.error(`Network Error method:${method}`, error);
-    // Handle any network or other errors
+    toast.error(`Network Error: Failed to ${method} subname`);
   }
 }
 
-function SwitchResolverMessage({ basename }: { basename: string }) {
-  return (
-    <div className="flex mb-4 text-neutral-300 text-sm rounded-lg p-3 items-center justify-between w-full h-14 bg-neutral-700">
-      <div className="flex items-center gap-2">
-        <ExclamationTriangleIcon
-          className=" text-amber-300"
-          width={16}
-          height={16}
-        />
-        Switch resolver to add subnames.
-      </div>
-      <EnableModal
-        basename={basename}
-        trigger={
-          <Button
-            variant="outline"
-            className=" border-green-500 hover:bg-emerald-500"
-          >
-            Switch Resolver
-          </Button>
-        }
-      />
-    </div>
-  );
-}
 function GetApiKeyMessage({
   basename,
   address,
@@ -687,16 +687,64 @@ function EditNameModal({
   basename: string;
   trigger: React.ReactNode;
 }) {
-  const [address, setAddress] = useState("");
-  const [description, setDescription] = useState("");
-  const [avatar, setAvatar] = useState("");
-  const [location, setLocation] = useState("");
-  const [x, setx] = useState("");
-  const [github, setGithub] = useState("");
-  const [discord, setDiscord] = useState("");
-  const [website, setWebsite] = useState("");
+  const [domainInfo, setDomainInfo] = useState<DomainInfo | null>(null);
+  const [open, setOpen] = useState(false);
+  // useEffect to set domainInfo
+  useEffect(() => {
+    fetch(`/api/get-domain?domain=${basename}`).then((response) => {
+      if (response.ok) {
+        response.json().then((data) => {
+          console.log("Domain Info:", data);
+          setDomainInfo(data);
+        });
+      } else {
+        console.error("Failed to fetch domain info");
+      }
+    });
+  }, [basename]);
+
+  function changeDomainInfo({
+    key,
+    value,
+    textRecord,
+  }: {
+    key: string;
+    value: string;
+    textRecord: boolean;
+  }) {
+    const tempDomainInfo = _.cloneDeep(domainInfo);
+    if (textRecord) {
+      tempDomainInfo["text_records"][key] = value;
+    } else {
+      tempDomainInfo[key] = value;
+    }
+    setDomainInfo(tempDomainInfo);
+  }
+
+  function saveDomainInfo() {
+    // Save domainInfo
+    fetch(`/api/edit-domain`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...domainInfo,
+      }),
+    }).then((response) => {
+      setOpen(false);
+      if (response.ok) {
+        console.log("Domain info saved successfully");
+        toast.success("Domain info saved successfully");
+      } else {
+        console.error("Failed to save domain info");
+        toast.error("Failed to save domain info");
+      }
+    }); // Handle any network or other errors
+  }
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[520px] max-h-[420px] overflow-y-auto  bg-neutral-800">
         <DialogHeader>
@@ -712,13 +760,19 @@ function EditNameModal({
             </div>
             <Input
               id="address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              value={domainInfo?.address || ""}
+              onChange={(e) =>
+                changeDomainInfo({
+                  key: "address",
+                  value: e.target.value,
+                  textRecord: false,
+                })
+              }
               className=" bg-neutral-750 focus-visible:ring-1 transition-shadow duration-300  placeholder:text-neutral-500  text-sm font-mono text-neutral-300 rounded"
               // disabled={name.nameType === "onchain"}
               placeholder="0x123..."
             />
-            <AddressCheck address={address} />
+            <AddressCheck address={domainInfo?.address || ""} />
           </div>
           <div>
             <div className="flex text-white text-sm font-bold mb-2 mt-2 gap-2 items-center">
@@ -726,8 +780,14 @@ function EditNameModal({
             </div>
             <Input
               id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={domainInfo?.text_records?.description || ""}
+              onChange={(e) => {
+                changeDomainInfo({
+                  key: "description",
+                  value: e.target.value,
+                  textRecord: true,
+                });
+              }}
               className=" bg-neutral-750 focus-visible:ring-1 transition-shadow duration-300  placeholder:text-neutral-500 text-sm  text-neutral-300 rounded"
               // disabled={name.nameType === "onchain"}
               placeholder="i'm a web3 developer"
@@ -739,8 +799,14 @@ function EditNameModal({
             </div>
             <Input
               id="avatar"
-              value={avatar}
-              onChange={(e) => setAvatar(e.target.value)}
+              value={domainInfo?.text_records?.avatar || ""}
+              onChange={(e) => {
+                changeDomainInfo({
+                  key: "avatar",
+                  value: e.target.value,
+                  textRecord: true,
+                });
+              }}
               className=" bg-neutral-750 focus-visible:ring-1 transition-shadow duration-300 placeholder:text-neutral-500 text-sm  text-neutral-300 rounded"
               // disabled={name.nameType === "onchain"}
               placeholder="url for avatar"
@@ -752,8 +818,14 @@ function EditNameModal({
             </div>
             <Input
               id="location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              value={domainInfo?.text_records?.location || ""}
+              onChange={(e) => {
+                changeDomainInfo({
+                  key: "location",
+                  value: e.target.value,
+                  textRecord: true,
+                });
+              }}
               className=" bg-neutral-750 focus-visible:ring-1 transition-shadow duration-300 placeholder:text-neutral-500 text-sm  text-neutral-300 rounded"
               // disabled={name.nameType === "onchain"}
               placeholder="new york city"
@@ -775,8 +847,14 @@ function EditNameModal({
             />
             <Input
               id="X"
-              value={x}
-              onChange={(e) => setx(e.target.value)}
+              value={domainInfo?.text_records?.["com.twitter"] || ""}
+              onChange={(e) => {
+                changeDomainInfo({
+                  key: "com.twitter",
+                  value: e.target.value,
+                  textRecord: true,
+                });
+              }}
               className="bg-neutral-750  pl-8 text-sm focus-visible:ring-1 transition-shadow duration-300 text-neutral-300 placeholder:text-neutral-500 rounded "
               // disabled={name.nameType === "onchain"}
               placeholder="namestonehq"
@@ -792,8 +870,14 @@ function EditNameModal({
             />
             <Input
               id="github"
-              value={location}
-              onChange={(e) => setGithub(e.target.value)}
+              value={domainInfo?.text_records?.["com.github"] || ""}
+              onChange={(e) => {
+                changeDomainInfo({
+                  key: "com.github",
+                  value: e.target.value,
+                  textRecord: true,
+                });
+              }}
               className=" bg-neutral-750 text-sm pl-8 focus-visible:ring-1 transition-shadow duration-300  text-neutral-300 placeholder:text-neutral-500 rounded "
               // disabled={name.nameType === "onchain"}
               placeholder="resolverworks"
@@ -809,8 +893,14 @@ function EditNameModal({
             />
             <Input
               id="discord"
-              value={discord}
-              onChange={(e) => setDiscord(e.target.value)}
+              value={domainInfo?.text_records?.["com.discord"] || ""}
+              onChange={(e) => {
+                changeDomainInfo({
+                  key: "com.discord",
+                  value: e.target.value,
+                  textRecord: true,
+                });
+              }}
               className=" bg-neutral-750  pl-8 text-sm transition-shadow duration-300  focus-visible:ring-1  text-neutral-300 placeholder:text-neutral-500 rounded"
               // disabled={name.nameType === "onchain"}
               placeholder="slobo.eth"
@@ -826,17 +916,24 @@ function EditNameModal({
             />
             <Input
               id="website"
-              value={location}
-              onChange={(e) => setWebsite(e.target.value)}
+              value={domainInfo?.text_records?.url || ""}
+              onChange={(e) => {
+                changeDomainInfo({
+                  key: "url",
+                  value: e.target.value,
+                  textRecord: true,
+                });
+              }}
               className=" bg-neutral-750 text-sm  pl-8  transition-shadow duration-300 focus-visible:ring-1  text-neutral-300 placeholder:text-neutral-500 rounded "
-              // disabled={name.nameType === "onchain"}
               placeholder="www.namestone.xyz"
             />
           </div>
         </div>
 
         <DialogFooter>
-          <Button className="w-24">Save</Button>
+          <Button onClick={saveDomainInfo} className="w-24">
+            Save
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -23,7 +23,6 @@ export const ConnectButton = () => {
   });
 
   const buttonWidth = "w-36";
-  console.log("SESSION", session?.address, address, isConnected, chain);
 
   const isMounted = useRef(false);
 

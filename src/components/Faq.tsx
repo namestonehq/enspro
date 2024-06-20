@@ -14,8 +14,7 @@ export default function Faq() {
         <span className="font-bold">
           you will need to switch your name's resolver.
         </span>
-        &nbsp;We will walk you through this when you connect, but you access our
-        instructions anytime.{" "}
+        &nbsp;We will walk you through this when you connect.{" "}
       </div>
     </div>
   );

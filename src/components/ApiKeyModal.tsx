@@ -38,7 +38,14 @@ import { Input } from "./ui/input";
 const HYBRID_RESOLVER = "0x7CE6Cf740075B5AF6b1681d67136B84431B43AbD";
 
 const client = createClient({
-  chain: addEnsContracts(mainnet),
+  chain: {
+    ...addEnsContracts(mainnet),
+    subgraphs: {
+      ens: {
+        url: process.env.SUBGRAPH_URL || "",
+      },
+    },
+  },
   transport: http(),
 });
 

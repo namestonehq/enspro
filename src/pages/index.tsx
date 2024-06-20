@@ -11,7 +11,6 @@ import { useAccount } from "wagmi";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 
 type Name = {
@@ -69,6 +68,7 @@ const Home: NextPage = () => {
 
   return (
     <div className="bg-grid bg-neutral-900 -z-20">
+      {/* Toaster */}
       {/* Nav Bar */}
       <NavBar />
       <main className="flex min-h-screen flex-col px-2 sm:px-8 max-w-5xl mx-auto">

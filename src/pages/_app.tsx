@@ -12,6 +12,7 @@ import {
   RainbowKitSiweNextAuthProvider,
   GetSiweMessageOptions,
 } from "@rainbow-me/rainbowkit-siwe-next-auth";
+import { Toaster } from "react-hot-toast";
 
 import { config } from "../wagmi";
 
@@ -29,6 +30,19 @@ export default function App({
 }>) {
   return (
     <SessionProvider refetchInterval={0} session={pageProps.session}>
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        gutter={8}
+        toastOptions={{
+          // Define default options
+          duration: 3000,
+          style: {
+            background: "#404040",
+            color: "#34D399",
+          },
+        }}
+      />
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <RainbowKitSiweNextAuthProvider

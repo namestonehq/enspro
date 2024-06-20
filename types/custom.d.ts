@@ -10,6 +10,20 @@ declare global {
   type Subname = Name & {
     nameType?: SubnameType;
   };
+
+  type DomainInfo = {
+    domain: string;
+    address: string;
+    text_records: {
+      avatar: string;
+      description: string;
+      location: string;
+      "com.twitter": string;
+      "com.github": string;
+      "com.discord": string;
+      url: string;
+    };
+  };
 }
 
 export {}; // This is required to prevent TS from throwing an error on the file
