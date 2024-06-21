@@ -100,7 +100,7 @@ export function EnableModal({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[520px]  bg-neutral-800">
         <DialogHeader>
-          <DialogTitle className="text-white mb-1">Switch Resolver</DialogTitle>
+          <DialogTitle className="text-white mb-1">Update Resolver</DialogTitle>
           <DialogDescription className=" text-neutral-300">
             Update your resolver to enable ENSPro. We use a{" "}
             <Link
@@ -124,7 +124,7 @@ export function EnableModal({
 
         <DialogFooter>
           <div className="flex justify-between w-full items-center">
-            <div>
+            <div className=" text-neutral-300">
               {txStatus && <StatusDisplay txHash={txHash} status={txStatus} />}
             </div>
             <EnableButton
@@ -175,12 +175,6 @@ function EnableButton({
   const [showSpinner, setShowSpinner] = useState(false);
   const router = useRouter();
 
-  if (enabled) {
-    setButtonText("Manage Subnames");
-  } else if (resolver === HYBRID_RESOLVER) {
-    setButtonText("Add Text Record");
-  }
-
   async function handleClick() {
     if (!enabled) {
       if (resolver !== HYBRID_RESOLVER && account) {
@@ -190,7 +184,9 @@ function EnableButton({
         });
 
         try {
-          setTxStatus("Changing resolver...");
+          setTxStatus("Waiting for approval...");
+          setButtonText("");
+          setShowSpinner(true);
           const domainInfo = await getOnchainDomainInfo(domain);
           console.log(domainInfo);
           const hash = await setResolver(wallet, {
@@ -201,13 +197,16 @@ function EnableButton({
           });
           setTxHash(hash);
           setTxStatus("pending");
+          setButtonText("Pending");
           try {
             const transaction = await publicClient.waitForTransactionReceipt({
               hash,
             });
             setTxStatus("success");
+            setButtonText("Success");
           } catch (error) {
             setTxStatus("error");
+            setButtonText("Update");
             console.error(error);
           }
           fetch(`/api/get-api-key?domain=${domain}`).then((response) => {
@@ -239,6 +238,8 @@ function EnableButton({
         } catch (error) {
           // tx error
           setTxStatus("error");
+          setButtonText("Update");
+          setShowSpinner(false);
           console.error(error);
         }
       }
@@ -248,13 +249,12 @@ function EnableButton({
   }
 
   return (
-    <Button onClick={handleClick} className="w-48">
-      {" "}
+    <Button onClick={handleClick} className="w-24">
       {showSpinner && (
         <Image
-          src="/spinner.svg"
+          src="/loading-spinner.svg"
           alt="spinner"
-          className="mr-2"
+          className={buttonText ? "mr-2" : ""}
           width={16}
           height={16}
         />
@@ -267,20 +267,32 @@ function EnableButton({
 function StatusDisplay({ status, txHash }: { status: string; txHash: string }) {
   console.log("StatusDisplay", status, txHash);
   return (
-    <div className="flex text-white items-center gap-2">
+    <div className="flex  text-neutral-300 items-center gap-2">
       <span>
-        {txHash !== "" && (status === "pending" || status === "success") ? (
+        {status === "error" ? (
+          <div className="flex items-center text-red-400">
+            <Image
+              src="/icon-error.svg"
+              alt="error"
+              className="mr-2"
+              width={16}
+              height={16}
+            />
+            Error
+          </div>
+        ) : status === "updating" ? (
           <div className="flex items-center">
-            {" "}
-            {status === "pending" && (
-              <Image
-                src="/loading-spinner.svg"
-                alt="spinner"
-                className="mr-2"
-                width={16}
-                height={16}
-              />
-            )}
+            <Image
+              src="/updating-icon.svg" // Ensure you have an icon for updating status
+              alt="updating"
+              className="mr-2"
+              width={16}
+              height={16}
+            />
+          </div>
+        ) : txHash !== "" && (status === "pending" || status === "success") ? (
+          <div className="flex items-center">
+            {status === "pending" && ""}
             Transaction {status}:{" "}
             <Link target="_blank" href={`https://etherscan.io/tx/${txHash}`}>
               <Image
@@ -294,7 +306,7 @@ function StatusDisplay({ status, txHash }: { status: string; txHash: string }) {
           </div>
         ) : (
           <div>{status}</div>
-        )}{" "}
+        )}
       </span>
     </div>
   );

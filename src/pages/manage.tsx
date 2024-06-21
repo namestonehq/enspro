@@ -208,7 +208,7 @@ export default function Manage() {
                         width={16}
                         height={16}
                       />
-                      Switch resolver to add subnames.
+                      Update resolver to add subnames.
                     </div>
                     <EnableModal
                       basename={basename}
@@ -218,7 +218,7 @@ export default function Manage() {
                           variant="outline"
                           className=" border-green-500 hover:bg-emerald-500"
                         >
-                          Switch Resolver
+                          Update Resolver
                         </Button>
                       }
                     />
@@ -408,22 +408,36 @@ function NameCard({
         </div>
 
         <DialogFooter>
-          <div className="flex w-full content-between justify-between">
-            <Button
-              variant="outline"
-              className=" hover:bg-red-400 border-red-400 border text-red-400 w-24"
-              onClick={handleDeleteSubname}
-            >
-              Delete
-            </Button>
-            <Button
-              className="w-24"
-              disabled={!isAddress(address, { strict: false })}
-              onClick={handleEditSubname}
-            >
-              Save
-            </Button>
-          </div>
+          {name.nameType === "offchain" ? (
+            <div className="flex w-full content-between justify-between">
+              <Button
+                variant="outline"
+                className=" hover:bg-red-400 border-red-400 border text-red-400 w-24"
+                onClick={handleDeleteSubname}
+              >
+                Delete
+              </Button>
+              <Button
+                className="w-24"
+                disabled={!isAddress(address, { strict: false })}
+                onClick={handleEditSubname}
+              >
+                Save
+              </Button>
+            </div>
+          ) : (
+            <div className="w-full  text-neutral-300 text-center -mt-4">
+              Edit onchain names at{" "}
+              <Link
+                target="_blank"
+                href={`https://app.ens.domains/${name.name}`}
+              >
+                <span className=" text-emerald-400 transition-colors duration-300 hover:text-emerald-500 underline">
+                  ens.domains
+                </span>
+              </Link>
+            </div>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -726,7 +740,7 @@ function EditNameModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[520px] max-h-[420px] overflow-y-auto  bg-neutral-800">
+      <DialogContent className="sm:max-w-[520px] max-h-[420px] sm:max-h-full overflow-y-auto  bg-neutral-800">
         <DialogHeader>
           <DialogTitle className="text-white mb-1 font-bold">
             Edit Name
