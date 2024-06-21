@@ -205,6 +205,7 @@ function EnableButton({
             setTxStatus("success");
             setButtonText("Success");
           } catch (error) {
+            // wait for txReciept is known to fail we display success anyhow
             setTxStatus("success");
             setButtonText("Success");
             console.error(error);
