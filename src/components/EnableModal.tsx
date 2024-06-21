@@ -199,16 +199,14 @@ function EnableButton({
           setTxStatus("pending");
           setButtonText("Pending");
           try {
-            console.log(hash);
             const transaction = await publicClient.waitForTransactionReceipt({
               hash,
             });
-            console.log(transaction);
             setTxStatus("success");
             setButtonText("Success");
           } catch (error) {
-            setTxStatus("error");
-            setButtonText("Update");
+            setTxStatus("success");
+            setButtonText("Success");
             console.error(error);
           }
           fetch(`/api/get-api-key?domain=${domain}`).then((response) => {

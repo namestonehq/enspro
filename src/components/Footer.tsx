@@ -7,7 +7,7 @@ export default function Footer() {
     <div className=" bg-neutral-900 h-16 absolute items-center w-full z-10 flex">
       <div className="flex  items-center justify-center sm:w-[800px] mx-auto">
         <LightningBoltIcon className=" text-orange-400" />
-        <span className="ml-1 text-slate-400">
+        <span className="ml-1  text-neutral-300">
           Powered By{" "}
           <Link
             href="https://namestone.xyz"
