@@ -199,9 +199,11 @@ function EnableButton({
           setTxStatus("pending");
           setButtonText("Pending");
           try {
+            console.log(hash);
             const transaction = await publicClient.waitForTransactionReceipt({
               hash,
             });
+            console.log(transaction);
             setTxStatus("success");
             setButtonText("Success");
           } catch (error) {
