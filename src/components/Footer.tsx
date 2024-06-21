@@ -12,11 +12,11 @@ export default function Footer() {
           <Link
             href="https://namestone.xyz"
             target="_blank"
-            className=" hover:text-orange-400 transition-colors duration-300 ease-in"
+            className=" hover:text-orange-400 transition-colors duration-300 ease-in text-neutral-300"
           >
             NameStone
           </Link>{" "}
-          <span className="mr-2 text-slate-500">|</span>
+          <span className="mr-2 text-neutral-300">|</span>
         </span>
         <Link href="https://twitter.com/namestonehq" target="_blank">
           <Image

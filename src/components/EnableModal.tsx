@@ -104,7 +104,7 @@ export function EnableModal({
           <DialogDescription className=" text-neutral-300">
             Update your resolver to enable ENSPro. We use a{" "}
             <Link
-              className="underline"
+              className="underline text-emerald-400"
               href="https://etherscan.io/address/0x7CE6Cf740075B5AF6b1681d67136B84431B43AbD"
               target="_blank"
             >
