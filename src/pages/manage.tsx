@@ -631,18 +631,16 @@ function GetApiKeyMessage({
   const [buttonText, setButtonText] = useState("Get Key");
   function getApiKey() {
     setButtonText("Getting Key...");
-    fetch(`/api/get-api-key?address=${address}&domain=${basename}`).then(
-      (response) => {
-        if (response.ok) {
-          console.log("API key fetched successfully");
-          setButtonText("Key Fetched");
-          fetchSubnames();
-        } else {
-          console.error("Failed to fetch API key");
-          setButtonText("Failed to fetch key");
-        }
+    fetch(`/api/get-api-key?domain=${basename}`).then((response) => {
+      if (response.ok) {
+        console.log("API key fetched successfully");
+        setButtonText("Key Fetched");
+        fetchSubnames();
+      } else {
+        console.error("Failed to fetch API key");
+        setButtonText("Failed to fetch key");
       }
-    );
+    });
   }
 
   return (
