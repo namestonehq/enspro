@@ -41,7 +41,7 @@ export default async function handler(
 
   const address = token.sub as string;
 
-  if (!address || !isAddress(address)) {
+  if (!address || !isAddress(address, { strict: false })) {
     res.status(400).json({ error: "Missing address" });
     return;
   }

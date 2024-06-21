@@ -418,7 +418,7 @@ function NameCard({
             </Button>
             <Button
               className="w-24"
-              disabled={!isAddress(address)}
+              disabled={!isAddress(address, { strict: false })}
               onClick={handleEditSubname}
             >
               Save
@@ -505,7 +505,7 @@ function AddSubnameModal({
         <DialogFooter>
           <Button
             className="w-24"
-            disabled={!isAddress(address)}
+            disabled={!isAddress(address, { strict: false })}
             onClick={handleAddSubname}
           >
             Save
@@ -519,7 +519,9 @@ function AddSubnameModal({
 function AddressCheck({ address }: { address: string }) {
   return (
     <div className="text-red-500 ml-1 mt-2 font-mono text-xs h-5">
-      {!isAddress(address) && address !== "" && <div>Invalid address</div>}
+      {!isAddress(address, { strict: false }) && address !== "" && (
+        <div>Invalid address</div>
+      )}
     </div>
   );
 }
