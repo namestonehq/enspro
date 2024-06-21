@@ -119,7 +119,7 @@ const Home: NextPage = () => {
                 />
               </div>
               <div className="text-3xl  text-white font-bold mt-4 mb-2">
-                Welcome to ENS<span className=" text-emerald-500">PRO</span>
+                Welcome to ENS<span className=" text-emerald-500">Pro</span>
               </div>
               <div className="  text-neutral-300 mb-4">
                 Your Personal Subname Manager

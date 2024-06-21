@@ -17,7 +17,7 @@ import { Toaster } from "react-hot-toast";
 import { config } from "../wagmi";
 
 const getSiweMessageOptions: GetSiweMessageOptions = () => ({
-  statement: "Sign in to ENS Pro",
+  statement: "Sign in to ENSPro",
 });
 
 const queryClient = new QueryClient();
