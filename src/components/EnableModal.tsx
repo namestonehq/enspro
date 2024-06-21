@@ -45,13 +45,13 @@ const client = createClient({
       },
     },
   },
-  transport: http(),
+  transport: http(process.env.MAINNET_RPC || ""),
 });
 
 const publicClient = createPublicClient({
   batch: { multicall: true },
   chain: mainnet,
-  transport: http(),
+  transport: http(process.env.MAINNET_RPC || ""),
 });
 
 export function EnableModal({
