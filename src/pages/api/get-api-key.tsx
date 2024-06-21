@@ -1,5 +1,6 @@
 import sql from "../../lib/db";
 import { NextApiRequest, NextApiResponse } from "next";
+import { getToken } from "next-auth/jwt";
 
 async function makeRequest(url: string, body: any) {
   try {
@@ -32,13 +33,28 @@ export default async function handler(
     return;
   }
 
+  const token = await getToken({ req });
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized. Please refresh." });
+  }
+
   const params = new URLSearchParams(req.url?.split("?")[1]);
-  const address = params.get("address");
+  const address = token?.sub as string;
   const domain = params.get("domain");
   const name = "enspro";
   const email = "hello@enspro.xyz";
 
   let data;
+  // check if we already have an api key
+  const apiKeyQuery = await sql`
+    select api_key from "ApiKey" where
+    address = ${address} and domain = ${domain}
+    order by "createdAt" desc
+  `;
+  if (apiKeyQuery.length !== 0) {
+    return res.status(200).json({ message: "APIkey Exists" });
+  }
+
   // get api key from namestone
   try {
     data = await makeRequest(
@@ -65,7 +81,7 @@ export default async function handler(
       ) values (
         ${domain}, ${data.api_key}, ${address}
       )`;
-    return res.status(200).json({ message: "Name added" });
+    return res.status(200).json({ message: "APIkey added" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch names" });

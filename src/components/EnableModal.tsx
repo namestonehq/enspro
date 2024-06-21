@@ -45,13 +45,13 @@ const client = createClient({
       },
     },
   },
-  transport: http(),
+  transport: http(process.env.MAINNET_RPC || ""),
 });
 
 const publicClient = createPublicClient({
   batch: { multicall: true },
   chain: mainnet,
-  transport: http(),
+  transport: http(process.env.MAINNET_RPC || ""),
 });
 
 export function EnableModal({
@@ -209,34 +209,32 @@ function EnableButton({
             setButtonText("Update");
             console.error(error);
           }
-          fetch(`/api/get-api-key?address=${account}&domain=${domain}`).then(
-            (response) => {
-              if (response.ok) {
-                console.log("API key fetched successfully");
-                // set domain to domainInfo on namestone
-                // Save domainInfo
-                fetch(`/api/edit-domain`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    ...domainInfo,
-                  }),
-                }).then((response) => {
-                  if (response.ok) {
-                    console.log("Domain info saved successfully");
-                  } else {
-                    console.error("Failed to save domain info");
-                  }
-                });
-                refetchSubnames();
-                toast.success("Resolver changed successfully");
-              } else {
-                console.error("Failed to fetch API key");
-              }
+          fetch(`/api/get-api-key?domain=${domain}`).then((response) => {
+            if (response.ok) {
+              console.log("API key fetched successfully");
+              // set domain to domainInfo on namestone
+              // Save domainInfo
+              fetch(`/api/edit-domain`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  ...domainInfo,
+                }),
+              }).then((response) => {
+                if (response.ok) {
+                  console.log("Domain info saved successfully");
+                } else {
+                  console.error("Failed to save domain info");
+                }
+              });
+              refetchSubnames();
+              toast.success("Resolver changed successfully");
+            } else {
+              console.error("Failed to fetch API key");
             }
-          );
+          });
         } catch (error) {
           // tx error
           setTxStatus("error");

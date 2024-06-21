@@ -16,7 +16,7 @@ const client = createPublicClient({
       },
     },
   },
-  transport: http(),
+  transport: http(process.env.MAINNET_RPC || ""),
 });
 
 export default async function handler(

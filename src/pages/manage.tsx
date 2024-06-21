@@ -40,7 +40,7 @@ const client = createPublicClient({
       },
     },
   },
-  transport: http(),
+  transport: http(process.env.MAINNET_RPC || ""),
 });
 
 export default function Manage() {
@@ -419,7 +419,7 @@ function NameCard({
               </Button>
               <Button
                 className="w-24"
-                disabled={!isAddress(address)}
+                disabled={!isAddress(address, { strict: false })}
                 onClick={handleEditSubname}
               >
                 Save
@@ -519,7 +519,7 @@ function AddSubnameModal({
         <DialogFooter>
           <Button
             className="w-24"
-            disabled={!isAddress(address)}
+            disabled={!isAddress(address, { strict: false })}
             onClick={handleAddSubname}
           >
             Save
@@ -533,7 +533,9 @@ function AddSubnameModal({
 function AddressCheck({ address }: { address: string }) {
   return (
     <div className="text-red-500 ml-1 mt-2 font-mono text-xs h-5">
-      {!isAddress(address) && address !== "" && <div>Invalid address</div>}
+      {!isAddress(address, { strict: false }) && address !== "" && (
+        <div>Invalid address</div>
+      )}
     </div>
   );
 }
@@ -645,18 +647,16 @@ function GetApiKeyMessage({
   const [buttonText, setButtonText] = useState("Get Key");
   function getApiKey() {
     setButtonText("Getting Key...");
-    fetch(`/api/get-api-key?address=${address}&domain=${basename}`).then(
-      (response) => {
-        if (response.ok) {
-          console.log("API key fetched successfully");
-          setButtonText("Key Fetched");
-          fetchSubnames();
-        } else {
-          console.error("Failed to fetch API key");
-          setButtonText("Failed to fetch key");
-        }
+    fetch(`/api/get-api-key?domain=${basename}`).then((response) => {
+      if (response.ok) {
+        console.log("API key fetched successfully");
+        setButtonText("Key Fetched");
+        fetchSubnames();
+      } else {
+        console.error("Failed to fetch API key");
+        setButtonText("Failed to fetch key");
       }
-    );
+    });
   }
 
   return (

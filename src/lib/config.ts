@@ -17,7 +17,10 @@ export const config = getDefaultConfig({
     storage: cookieStorage,
   }),
   transports: supportedChains.reduce(
-    (obj, chain) => ({ ...obj, [chain.id]: http() }),
+    (obj, chain) => ({
+      ...obj,
+      [chain.id]: http(process.env.MAINNET_RPC || ""),
+    }),
     {}
   ),
 });

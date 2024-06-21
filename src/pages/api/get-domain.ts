@@ -1,23 +1,7 @@
 // pages/api/get-subnames.ts
 import { NextApiRequest, NextApiResponse } from "next";
-import { getSubnames, Name } from "@ensdomains/ensjs/subgraph";
-import { addEnsContracts } from "@ensdomains/ensjs";
-import { mainnet } from "viem/chains";
-import { createPublicClient, http } from "viem";
 import sql from "../../lib/db";
 import { getToken } from "next-auth/jwt";
-
-const client = createPublicClient({
-  chain: {
-    ...addEnsContracts(mainnet),
-    subgraphs: {
-      ens: {
-        url: process.env.SUBGRAPH_URL || "",
-      },
-    },
-  },
-  transport: http(),
-});
 
 export default async function handler(
   req: NextApiRequest,
