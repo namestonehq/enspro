@@ -56,6 +56,13 @@ export default function Manage() {
   const account = useAccount();
   const router = useRouter();
 
+  //UseEffect to return to main page if not connected
+  useEffect(() => {
+    if (!account.address) {
+      router.push("/");
+    }
+  }, [account.address, router]);
+
   useEffect(() => {
     if (searchParams.get("name")) {
       setbasename(searchParams.get("name") || "");
