@@ -153,13 +153,13 @@ export default function Manage() {
           <div className="flex shadow-lg w-full max-w-[800px] min-h-[480px]  bg-neutral-800  p-8 flex-col rounded mx-auto">
             <div className="flex text-white justify-between items-center">
               <div className="flex items-center">
-                <div className="text-white flex text-center text-lg font-bold items-center">
-                  <div className="flex divide-x  divide-neutral-600 bg-neutral-750  rounded-md">
+                <div className="text-white flex text-center text-lg font-bold items-center flex-wrap">
+                  <div className="flex divide-x  divide-neutral-600 bg-neutral-750  rounded-md mr-2">
                     {hasApiKey && (
                       <EditNameModal
                         basename={basename}
                         trigger={
-                          <button className="p-2 px-3 rounded-md transition-colors duration-300 flex hover:rounded-tr-none hover:rounded-br-none rounded-tr-none  rounded-br-none hover:rounded-md hover:rounded-tl-md hover:bg-neutral-600 items-center">
+                          <button className="p-2 px-3  rounded-md transition-colors duration-300 flex hover:rounded-tr-none hover:rounded-br-none rounded-tr-none  rounded-br-none hover:rounded-md hover:rounded-tl-md hover:bg-neutral-600 items-center">
                             <Image
                               width={18}
                               height={18}
@@ -174,8 +174,12 @@ export default function Manage() {
                       <span className="mx-1 ">{basename}</span>
                     </div>
                   </div>
-                  <span className="text-neutral-300 ml-2 text-base font-normal">
-                    ({loading ? "loading..." : subnames.length})
+                  <span className="text-neutral-300  text-base font-normal">
+                    (
+                    {loading
+                      ? "loading..."
+                      : subnames.length.toString() + " Subnames"}
+                    )
                   </span>
                 </div>
               </div>

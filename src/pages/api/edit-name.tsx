@@ -73,13 +73,6 @@ export default async function handler(
       );
       res.status(200).json(data);
     } else if (method === "edit") {
-      // Creates the new name with relevant data
-      await makeRequest(
-        "https://namestone.xyz/api/public_v1/set-name",
-        apiKey,
-        body
-      );
-
       // Deletes the old name
       await makeRequest(
         "https://namestone.xyz/api/public_v1/revoke-name",
@@ -89,6 +82,12 @@ export default async function handler(
           name: body.originalName,
           address: address,
         }
+      );
+      // Creates the new name with relevant data
+      await makeRequest(
+        "http://localhost:3001/api/public_v1/set-name",
+        apiKey,
+        body
       );
 
       res.status(200).json({ message: "Name edited successfully" });

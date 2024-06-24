@@ -49,11 +49,6 @@ const client = createClient({
   transport: http(process.env.MAINNET_RPC || ""),
 });
 
-const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http(process.env.MAINNET_RPC || ""),
-});
-
 export function ApiKeyModal({
   basename,
   trigger,

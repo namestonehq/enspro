@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
 } from "./ui/pagination";
@@ -141,23 +142,12 @@ export default function NameTable({
       </RadioGroup>
       {/* Pagination */}
       <div className="flex justify-between mt-8">
-        <div>
-          <Pagination>
-            <PaginationContent className="">
-              {Array.from({ length: totalPages }, (_, index) => (
-                <PaginationItem key={index} className="cursor-pointer">
-                  <PaginationLink
-                    onClick={() => handlePageChange(index + 1)}
-                    className={
-                      currentPage === index + 1 ? "  bg-neutral-600 " : ""
-                    }
-                  >
-                    {index + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-            </PaginationContent>
-          </Pagination>
+        <div className="max-w-full">
+          <Pager
+            totalPages={totalPages}
+            currentPage={currentPage}
+            handlePageChange={handlePageChange}
+          />
         </div>
 
         <div className="flex">
@@ -170,3 +160,79 @@ export default function NameTable({
     </div>
   );
 }
+
+const Pager = ({
+  totalPages,
+  currentPage,
+  handlePageChange,
+}: {
+  totalPages: number;
+  currentPage: number;
+  handlePageChange: (page: number) => void;
+}) => {
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const delta = 1; // Number of adjacent pages to show
+
+    if (totalPages <= 7) {
+      // If there are 7 or fewer pages, show all of them
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // Always include 1, 2, 3, 4 if current page is 1, 2, or 3
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pageNumbers.push(i);
+        }
+        if (totalPages > 6) pageNumbers.push("...");
+        pageNumbers.push(totalPages);
+      }
+      // Always include last 4 pages if current page is within last 3 pages
+      else if (currentPage > totalPages - 3) {
+        pageNumbers.push(1);
+        if (totalPages > 6) pageNumbers.push("...");
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pageNumbers.push(i);
+        }
+      }
+      // Otherwise, show current page with adjacent pages
+      else {
+        pageNumbers.push(1);
+        if (currentPage - delta > 2) pageNumbers.push("...");
+        for (
+          let i = Math.max(2, currentPage - delta);
+          i <= Math.min(totalPages - 1, currentPage + delta);
+          i++
+        ) {
+          pageNumbers.push(i);
+        }
+        if (currentPage + delta < totalPages - 1) pageNumbers.push("...");
+        pageNumbers.push(totalPages);
+      }
+    }
+
+    return pageNumbers;
+  };
+
+  return (
+    <Pagination className="max-w-full flex-wrap">
+      <PaginationContent>
+        {getPageNumbers().map((pageNumber, index) => (
+          <PaginationItem key={index} className="cursor-pointer">
+            {pageNumber === "..." ? (
+              <PaginationEllipsis />
+            ) : (
+              <PaginationLink
+                onClick={() => handlePageChange(pageNumber as number)}
+                className={currentPage === pageNumber ? "bg-neutral-600" : ""}
+              >
+                {pageNumber}
+              </PaginationLink>
+            )}
+          </PaginationItem>
+        ))}
+      </PaginationContent>
+    </Pagination>
+  );
+};
