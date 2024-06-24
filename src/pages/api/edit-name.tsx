@@ -85,7 +85,7 @@ export default async function handler(
       );
       // Creates the new name with relevant data
       await makeRequest(
-        "http://localhost:3001/api/public_v1/set-name",
+        "https://namestone.xyz/api/public_v1/set-name",
         apiKey,
         body
       );
