@@ -588,11 +588,11 @@ function SubnameInput({
         placeholder="Enter Name"
       />
       <div
-        className={`flex text-sm px-2 rounded-l-none items-center bg-neutral-750  rounded-md shadow-sm  ${
-          isFocused ? " text-emerald-400 " : " text-neutral-300"
+        className={`flex text-sm px-2 rounded-l-none items-center bg-neutral-750 rounded-md shadow-sm whitespace-nowrap  ${
+          isFocused ? "text-emerald-400" : "text-neutral-300"
         }`}
       >
-        <span>.{basename}</span>
+        <span className="flex-shrink-0">.{basename}</span>
       </div>
     </div>
   );

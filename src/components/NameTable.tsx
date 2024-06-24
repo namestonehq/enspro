@@ -98,7 +98,7 @@ export default function NameTable({
       <RadioGroup value={selectedName} onValueChange={onSelectName}>
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="hover:bg-neutral-800">
               <TableHead className=" text-neutral-300">Name</TableHead>
               <TableHead className=" text-neutral-300">Expiration</TableHead>
             </TableRow>
@@ -106,7 +106,7 @@ export default function NameTable({
           <TableBody>
             {displayedNames.map((name) => (
               <TableRow
-                className={`h-10 cursor-pointer  ${
+                className={`h-10 cursor-pointer   ${
                   selectedName === name.name
                     ? " bg-neutral-700   text-emerald-400  "
                     : ""
@@ -114,11 +114,11 @@ export default function NameTable({
                 key={name.name}
                 onClick={() => handleRowClick(name.name)}
               >
-                <TableCell className="font-medium flex  justify-between ">
+                <TableCell className="font-medium flex   min-w-60 sm:min-w-96 grow  justify-between ">
                   {name.name}
                 </TableCell>
 
-                <TableCell>
+                <TableCell className="w-full  ">
                   {name.expiryDate
                     ? new Date(name.expiryDate.value).toLocaleDateString(
                         undefined,
@@ -130,7 +130,10 @@ export default function NameTable({
             ))}
             {emptyRows > 0 &&
               Array.from({ length: emptyRows }).map((_, index) => (
-                <TableRow className="h-10" key={`empty-${index}`}>
+                <TableRow
+                  className="h-10 hover:bg-neutral-800 "
+                  key={`empty-${index}`}
+                >
                   <TableCell>&nbsp;</TableCell>
                   <TableCell>&nbsp;</TableCell>
                   <TableCell>&nbsp;</TableCell>
