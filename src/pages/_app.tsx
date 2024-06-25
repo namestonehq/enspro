@@ -19,6 +19,7 @@ import { config } from "../wagmi";
 const getSiweMessageOptions: GetSiweMessageOptions = () => ({
   statement: "Sign in to ENSPro",
 });
+import Head from "next/head";
 
 const queryClient = new QueryClient();
 
@@ -29,39 +30,54 @@ export default function App({
   session: Session;
 }>) {
   return (
-    <SessionProvider refetchInterval={0} session={pageProps.session}>
-      <Toaster
-        position="top-center"
-        reverseOrder={false}
-        gutter={8}
-        toastOptions={{
-          // Define default options
-          duration: 3000,
-          style: {
-            background: "#404040",
-            color: "#34D399",
-          },
-        }}
-      />
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          <RainbowKitSiweNextAuthProvider
-            getSiweMessageOptions={getSiweMessageOptions}
-          >
-            <RainbowKitProvider
-              theme={darkTheme({
-                accentColor: "#0E76FD",
-                accentColorForeground: "white",
-                borderRadius: "large",
-                fontStack: "system",
-                overlayBlur: "small",
-              })}
+    <>
+      <Head>
+        <meta
+          property="og:image"
+          content="https://enspro.xyz/opengraph-image.png"
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:title" content="ENSPro" />
+        <meta
+          property="og:description"
+          content="Your Personal Subname Manager"
+        />
+      </Head>
+      <SessionProvider refetchInterval={0} session={pageProps.session}>
+        <Toaster
+          position="top-center"
+          reverseOrder={false}
+          gutter={8}
+          toastOptions={{
+            // Define default options
+            duration: 3000,
+            style: {
+              background: "#404040",
+              color: "#34D399",
+            },
+          }}
+        />
+        <WagmiProvider config={config}>
+          <QueryClientProvider client={queryClient}>
+            <RainbowKitSiweNextAuthProvider
+              getSiweMessageOptions={getSiweMessageOptions}
             >
-              <Component {...pageProps} />
-            </RainbowKitProvider>
-          </RainbowKitSiweNextAuthProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </SessionProvider>
+              <RainbowKitProvider
+                theme={darkTheme({
+                  accentColor: "#0E76FD",
+                  accentColorForeground: "white",
+                  borderRadius: "large",
+                  fontStack: "system",
+                  overlayBlur: "small",
+                })}
+              >
+                <Component {...pageProps} />
+              </RainbowKitProvider>
+            </RainbowKitSiweNextAuthProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
+      </SessionProvider>
+    </>
   );
 }
