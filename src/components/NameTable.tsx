@@ -115,7 +115,7 @@ export default function NameTable({
                 key={name.name}
                 onClick={() => handleRowClick(name.name)}
               >
-                <TableCell className="font-medium flex   min-w-60 sm:min-w-96 grow  justify-between ">
+                <TableCell className="font-medium flex   min-w-40 sm:min-w-96 grow  justify-between ">
                   {name.name}
                 </TableCell>
 

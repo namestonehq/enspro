@@ -190,6 +190,7 @@ export default function Manage() {
                     disabled={!isEnable || !hasApiKey}
                     basename={basename}
                     refetchSubnames={refetchSubnames}
+                    existingSubnames={subnames}
                   />
                 </div>
               </div>
@@ -395,6 +396,7 @@ function NameCard({
             </Label>
           </div>
           <SubnameInput
+            error=""
             setSubname={setSubname}
             subname={subname}
             basename={basename}
@@ -463,14 +465,17 @@ function AddSubnameModal({
   basename,
   disabled,
   refetchSubnames,
+  existingSubnames,
 }: {
   basename: string;
   disabled: boolean;
   refetchSubnames: () => void;
+  existingSubnames: Subname[];
 }) {
   const [subname, setSubname] = useState("");
   const [address, setAddress] = useState("");
   const [open, setOpen] = useState(false);
+  const [subnameError, setSubnameError] = useState("");
 
   const handleAddSubname = async () => {
     await manageSubname({
@@ -486,6 +491,16 @@ function AddSubnameModal({
     refetchSubnames();
     setOpen(false);
   };
+
+  // use Effect to check if the subname already exists
+  useEffect(() => {
+    if (existingSubnames.find((name) => name.labelName === subname)) {
+      setSubnameError("Subname already exists");
+    } else {
+      setSubnameError("");
+    }
+  }, [subname, existingSubnames]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -506,6 +521,7 @@ function AddSubnameModal({
           </div>
 
           <SubnameInput
+            error={subnameError}
             subname={subname}
             basename={basename}
             setSubname={setSubname}
@@ -530,7 +546,9 @@ function AddSubnameModal({
         <DialogFooter>
           <Button
             className="w-24"
-            disabled={!isAddress(address, { strict: false })}
+            disabled={
+              !isAddress(address, { strict: false }) || subnameError !== ""
+            }
             onClick={handleAddSubname}
           >
             Save
@@ -552,12 +570,14 @@ function AddressCheck({ address }: { address: string }) {
 }
 
 function SubnameInput({
+  error,
   subname,
   basename,
   disabled = false,
   nameType,
   setSubname,
 }: {
+  error: string;
   subname: string;
   basename: string;
   disabled?: boolean;
@@ -578,27 +598,32 @@ function SubnameInput({
   };
 
   return (
-    <div className="flex">
-      <Input
-        id="subname"
-        className=" bg-neutral-750 focus-visible:ring-0 text-white rounded-r-none"
-        value={subname}
-        onChange={(e) => {
-          setSubname(e.target.value);
-        }}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        disabled={nameType === "onchain" || disabled}
-        placeholder="Enter Name"
-      />
-      <div
-        className={`flex text-sm px-2 rounded-l-none items-center bg-neutral-750 rounded-md shadow-sm whitespace-nowrap  ${
-          isFocused ? "text-emerald-400" : "text-neutral-300"
-        }`}
-      >
-        <span className="flex-shrink-0">.{basename}</span>
+    <>
+      <div className="flex">
+        <Input
+          id="subname"
+          className=" bg-neutral-750 focus-visible:ring-0 text-white rounded-r-none"
+          value={subname}
+          onChange={(e) => {
+            setSubname(e.target.value);
+          }}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          disabled={nameType === "onchain" || disabled}
+          placeholder="Enter Name"
+        />
+        <div
+          className={`flex text-sm px-2 rounded-l-none items-center bg-neutral-750 rounded-md shadow-sm whitespace-nowrap  ${
+            isFocused ? "text-emerald-400" : "text-neutral-300"
+          }`}
+        >
+          <span className="flex-shrink-0">.{basename}</span>
+        </div>
       </div>
-    </div>
+      <div className="text-red-500 ml-1 mt-2 font-mono text-xs h-5">
+        {error !== "" && <div>{error}</div>}
+      </div>
+    </>
   );
 }
 

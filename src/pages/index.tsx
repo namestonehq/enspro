@@ -76,7 +76,7 @@ const Home: NextPage = () => {
         <div className="flex  flex-col">
           {/* Box */}
           {address && authenticated && chain ? (
-            <div className="flex mt-8 shadow-lg w-full max-w-[800px] min-h-[480px] pb-0 p-8 flex-col  bg-neutral-800   rounded mx-auto">
+            <div className="flex mt-8 shadow-lg w-full max-w-[800px] min-h-[480px] pb-4 p-8 flex-col  bg-neutral-800   rounded mx-auto">
               <div className="flex justify-between">
                 <div className="mb-4 text-lg font-bold text-white">
                   {names.length === 0 ? "" : "Select a Name"}
