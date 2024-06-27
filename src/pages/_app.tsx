@@ -13,8 +13,7 @@ import {
   GetSiweMessageOptions,
 } from "@rainbow-me/rainbowkit-siwe-next-auth";
 import { Toaster } from "react-hot-toast";
-
-import { config } from "../wagmi";
+import { config } from "../lib/config";
 
 const getSiweMessageOptions: GetSiweMessageOptions = () => ({
   statement: "Sign in to ENSPro",
