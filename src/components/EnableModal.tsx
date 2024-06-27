@@ -117,7 +117,7 @@ export function EnableModal({
           <div className="flex text-white mb-2 mt-4 gap-2 items-center">
             Current Resolver
           </div>
-          <div className="rounded-lg w-full mb-2 text-neutral-300 bg-neutral-700 ring-0 ring-slate-300 pl-2 pr-4 py-2 font-mono text-sm">
+          <div className="rounded-lg w-full mb-2 text-neutral-300 bg-neutral-700 ring-0 ring-slate-300 pl-2 pr-4 py-2 font-mono text-sm break-all">
             {resolver || "Loading..."}
           </div>
         </div>
