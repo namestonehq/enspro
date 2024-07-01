@@ -289,11 +289,59 @@ function SubnameCard({
   const [subname, setSubname] = useState(name.labelName || "");
   const [address, setAddress] = useState(name.resolvedAddress || "");
   const [open, setOpen] = useState(false);
+  const [fetching, setFetching] = useState(false);
 
   useEffect(() => {
     setSubname(name.labelName || "");
     setAddress(name.resolvedAddress || "");
   }, [name]);
+
+  async function manageSubname({
+    method,
+    name,
+    basename,
+    resolvedAddress,
+    originalName,
+  }: {
+    method: ManageMethodType;
+    name: string;
+    basename: string;
+    resolvedAddress: Address;
+    originalName?: string;
+  }) {
+    const body = {
+      domain: basename,
+      name: name,
+      address: resolvedAddress,
+      method: method,
+      originalName: originalName,
+    };
+
+    if (fetching) return;
+    setFetching(true);
+    try {
+      const response = await fetch("/api/edit-name", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      console.log({ body, response });
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`Subname method ${method} executed successfully:`, data);
+        toast.success(`Subname ${method} successful`);
+      } else {
+        console.error(`Failed to execute ${method} for subname`);
+        toast.error(`Failed to ${method} subname`);
+      }
+      setFetching(false);
+    } catch (error) {
+      console.error(`Network Error method:${method}`, error);
+      toast.error(`Network Error: Failed to ${method} subname`);
+    }
+  }
 
   const handleEditSubname = async () => {
     const originalName = name.labelName || ""; // The original subname
@@ -479,6 +527,54 @@ function AddSubnameModal({
   const [address, setAddress] = useState("");
   const [open, setOpen] = useState(false);
   const [subnameError, setSubnameError] = useState("");
+  const [fetching, setFetching] = useState(false);
+
+  async function manageSubname({
+    method,
+    name,
+    basename,
+    resolvedAddress,
+    originalName,
+  }: {
+    method: ManageMethodType;
+    name: string;
+    basename: string;
+    resolvedAddress: Address;
+    originalName?: string;
+  }) {
+    const body = {
+      domain: basename,
+      name: name,
+      address: resolvedAddress,
+      method: method,
+      originalName: originalName,
+    };
+
+    if (fetching) return;
+    setFetching(true);
+    try {
+      const response = await fetch("/api/edit-name", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      console.log({ body, response });
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`Subname method ${method} executed successfully:`, data);
+        toast.success(`Subname ${method} successful`);
+      } else {
+        console.error(`Failed to execute ${method} for subname`);
+        toast.error(`Failed to ${method} subname`);
+      }
+      setFetching(false);
+    } catch (error) {
+      console.error(`Network Error method:${method}`, error);
+      toast.error(`Network Error: Failed to ${method} subname`);
+    }
+  }
 
   const handleAddSubname = async () => {
     await manageSubname({
@@ -635,50 +731,6 @@ function SubnameInput({
       </div>
     </>
   );
-}
-
-async function manageSubname({
-  method,
-  name,
-  basename,
-  resolvedAddress,
-  originalName,
-}: {
-  method: ManageMethodType;
-  name: string;
-  basename: string;
-  resolvedAddress: Address;
-  originalName?: string;
-}) {
-  const body = {
-    domain: basename,
-    name: name,
-    address: resolvedAddress,
-    method: method,
-    originalName: originalName,
-  };
-
-  try {
-    const response = await fetch("/api/edit-name", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-    console.log({ body, response });
-    if (response.ok) {
-      const data = await response.json();
-      console.log(`Subname method ${method} executed successfully:`, data);
-      toast.success(`Subname ${method} successful`);
-    } else {
-      console.error(`Failed to execute ${method} for subname`);
-      toast.error(`Failed to ${method} subname`);
-    }
-  } catch (error) {
-    console.error(`Network Error method:${method}`, error);
-    toast.error(`Network Error: Failed to ${method} subname`);
-  }
 }
 
 function GetApiKeyMessage({
