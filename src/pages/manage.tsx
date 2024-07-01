@@ -156,7 +156,7 @@ export default function Manage() {
                 <div className="text-white flex text-center text-lg font-bold items-center flex-wrap">
                   <div className="flex divide-x  divide-neutral-600 bg-neutral-750  rounded-md mr-2">
                     {hasApiKey && (
-                      <EditNameModal
+                      <EditDomainModal
                         basename={basename}
                         trigger={
                           <button className="p-2 px-3  rounded-md transition-colors duration-300 flex hover:rounded-tr-none hover:rounded-br-none rounded-tr-none  rounded-br-none hover:rounded-md hover:rounded-tl-md hover:bg-neutral-600 items-center">
@@ -257,7 +257,7 @@ export default function Manage() {
                   ) : (
                     <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
                       {subnames.map((name, index) => (
-                        <NameCard
+                        <SubnameCard
                           key={index}
                           name={name}
                           basename={basename}
@@ -277,7 +277,7 @@ export default function Manage() {
   );
 }
 
-function NameCard({
+function SubnameCard({
   name,
   basename,
   refetchSubnames,
@@ -383,7 +383,10 @@ function NameCard({
           </div>
         </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]  bg-neutral-800">
+      <DialogContent
+        className="sm:max-w-[425px]  bg-neutral-800"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="flex text-white">
             {name.nameType === "onchain" ? "View Subname" : "Edit Subname"}
@@ -597,6 +600,13 @@ function SubnameInput({
     setIsFocused(false);
   };
 
+  // //useEffect to prevent the input from being focused immediately
+  // useEffect(() => {
+  //   if (disabled) {
+  //     setIsFocused(false);
+  //   }
+  // }, [disabled]);
+
   return (
     <>
       <div className="flex">
@@ -728,7 +738,7 @@ function EnterApiKeyMessage({
   );
 }
 
-function EditNameModal({
+function EditDomainModal({
   basename,
   trigger,
 }: {
@@ -776,7 +786,10 @@ function EditNameModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[520px] max-h-[420px] sm:max-h-full overflow-y-auto  bg-neutral-800">
+      <DialogContent
+        className="sm:max-w-[520px] max-h-[420px] sm:max-h-full overflow-y-auto  bg-neutral-800"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="text-white mb-1 font-bold">
             Edit Name
