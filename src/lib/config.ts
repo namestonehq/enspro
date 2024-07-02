@@ -19,7 +19,7 @@ export const config = getDefaultConfig({
   transports: supportedChains.reduce(
     (obj, chain) => ({
       ...obj,
-      [chain.id]: http(process.env.MAINNET_RPC || ""),
+      [chain.id]: http(process.env.NEXT_PUBLIC_MAINNET_RPC || ""),
     }),
     {}
   ),

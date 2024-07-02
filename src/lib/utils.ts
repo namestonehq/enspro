@@ -19,7 +19,7 @@ const client = createPublicClient({
       },
     },
   },
-  transport: http(process.env.MAINNET_RPC || ""),
+  transport: http(process.env.NEXT_PUBLIC_MAINNET_RPC || ""),
 });
 
 export async function getOnchainDomainInfo(basename: string) {

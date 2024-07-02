@@ -40,7 +40,7 @@ const client = createPublicClient({
       },
     },
   },
-  transport: http(process.env.MAINNET_RPC || ""),
+  transport: http(process.env.NEXT_PUBLIC_MAINNET_RPC || ""),
 });
 
 export default function Manage() {
@@ -56,6 +56,7 @@ export default function Manage() {
   const account = useAccount();
   const router = useRouter();
 
+  console.log(process.env.NEXT_PUBLIC_MAINNET_RPC);
   //UseEffect to return to main page if not connected
   useEffect(() => {
     if (!account.address) {

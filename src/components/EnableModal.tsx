@@ -16,7 +16,6 @@ import {
   Hex,
 } from "viem";
 import { mainnet } from "viem/chains";
-import { normalize } from "viem/ens";
 // *** ENS ***
 import { batch, getResolver, getOwner } from "@ensdomains/ensjs/public";
 import { addEnsContracts } from "@ensdomains/ensjs";
@@ -45,13 +44,13 @@ const client = createClient({
       },
     },
   },
-  transport: http(process.env.MAINNET_RPC || ""),
+  transport: http(process.env.NEXT_PUBLIC_MAINNET_RPC || ""),
 });
 
 const publicClient = createPublicClient({
   batch: { multicall: true },
   chain: mainnet,
-  transport: http(process.env.MAINNET_RPC || ""),
+  transport: http(process.env.NEXT_PUBLIC_MAINNET_RPC || ""),
 });
 
 export function EnableModal({
