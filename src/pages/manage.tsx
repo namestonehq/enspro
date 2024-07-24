@@ -123,9 +123,7 @@ export default function Manage() {
   useEffect(() => {
     if (!basename) return; // Guard clause to prevent fetching with an empty name
     fetchResolver();
-    if (isEnable) {
-      fetchSubnames();
-    }
+    fetchSubnames();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [basename, isEnable, refetch]); // Dependency array includes `name`
 
@@ -259,6 +257,7 @@ export default function Manage() {
                     <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
                       {subnames.map((name, index) => (
                         <SubnameCard
+                          lowOpacity={isEnable ? false : true}
                           key={index}
                           name={name}
                           basename={basename}
@@ -279,10 +278,12 @@ export default function Manage() {
 }
 
 function SubnameCard({
+  lowOpacity,
   name,
   basename,
   refetchSubnames,
 }: {
+  lowOpacity: boolean;
   name: Subname;
   basename: string;
   refetchSubnames: () => void;
@@ -371,7 +372,11 @@ function SubnameCard({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className="cursor-pointer group hover:bg-neutral-700 transition-colors  duration-300 bg-neutral-750  grow p-4 flex flex-col rounded  gap-2 ">
+        <div
+          className={`${
+            lowOpacity ? "opacity-50" : ""
+          } cursor-pointer group hover:bg-neutral-700 transition-colors  duration-300 bg-neutral-750  grow p-4 flex flex-col rounded  gap-2 `}
+        >
           <div className="flex justify-between">
             <div className="text-sm  ">
               <span
