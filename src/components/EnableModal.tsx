@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
 // *** Wagmi/viem ***
-import { useAccount } from "wagmi";
+import { useAccount, useWalletClient } from "wagmi";
 import {
   http,
   createClient,
@@ -173,13 +173,18 @@ function EnableButton({
 }) {
   const [showSpinner, setShowSpinner] = useState(false);
   const router = useRouter();
+  const { data: walletClient } = useWalletClient();
 
   async function handleClick() {
     if (!enabled) {
+      if (!walletClient) {
+        toast.error("Wallet not connected");
+        return;
+      }
       if (resolver !== HYBRID_RESOLVER && account) {
         const wallet = createWalletClient({
           chain: addEnsContracts(mainnet),
-          transport: custom(window.ethereum),
+          transport: custom(walletClient.transport),
         });
 
         try {
