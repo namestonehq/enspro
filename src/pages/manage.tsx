@@ -843,7 +843,7 @@ function SubnameCard({
                       l2Addresses
                         ? "bg-emerald-600 justify-end"
                         : "bg-neutral-600 justify-start"
-                    } h-6 p-1 w-[44px] bg-neutral-600 rounded-[999px] justify-start items-center gap-2.5 flex`}
+                    } h-6 p-1 w-[44px] rounded-[999px] justify-start items-center gap-2.5 flex`}
                     onClick={() => setL2Addresses(!l2Addresses)}
                   >
                     <div className="w-4 h-4 bg-neutral-300 rounded-full" />
