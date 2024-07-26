@@ -294,10 +294,10 @@ function SubnameCard({
 }) {
   const [subname, setSubname] = useState(name.labelName || "");
   const [address, setAddress] = useState(name.resolvedAddress || "");
-  const [textRecords, setTextRecords] = useState(name.text_records || {});
-  const [coinTypes, setCoinTypes] = useState(name.coin_types || {});
+  const [textRecords, setTextRecords] = useState(name?.text_records || {});
+  const [coinTypes, setCoinTypes] = useState(name?.coin_types || {});
   const [l2Addresses, setL2Addresses] = useState(
-    !!name.coin_types["2147483658"] || false
+    !!name?.coin_types["2147483658"] || false
   ); // checks op only
   const [open, setOpen] = useState(false);
   const [fetching, setFetching] = useState(false);
@@ -306,8 +306,8 @@ function SubnameCard({
   useEffect(() => {
     setSubname(name.labelName || "");
     setAddress(name.resolvedAddress || "");
-    setTextRecords(name.text_records || {});
-    setCoinTypes(name.coin_types || {});
+    setTextRecords(name?.text_records || {});
+    setCoinTypes(name?.coin_types || {});
     setL2Addresses(!!name.coin_types["2147483658"] || false);
   }, [name]);
 
