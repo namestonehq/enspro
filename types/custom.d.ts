@@ -9,6 +9,21 @@ declare global {
   // Assuming 'Name' is already defined elsewhere and you want to extend it globally
   type Subname = Name & {
     nameType?: SubnameType;
+    address: string;
+    text_records: {
+      avatar: string;
+      description: string;
+      location: string;
+      "com.twitter": string;
+      "com.github": string;
+      "com.discord": string;
+      url: string;
+    };
+    coin_types: {
+      "0": string;
+      "501": string;
+      "2147483658": string;
+    };
   };
 
   type DomainInfo = {

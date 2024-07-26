@@ -70,8 +70,11 @@ export default async function handler(
           nameType: "offchain",
           resolvedAddress: item.address,
           labelName: item.name,
+          text_records: item.text_records,
+          coin_types: item.coin_types,
         }))
       );
+      console.log("Combined Subnames:", combinedSubnames);
     }
 
     res.status(200).json(combinedSubnames);
