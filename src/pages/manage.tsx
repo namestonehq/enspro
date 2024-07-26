@@ -297,7 +297,7 @@ function SubnameCard({
   const [textRecords, setTextRecords] = useState(name?.text_records || {});
   const [coinTypes, setCoinTypes] = useState(name?.coin_types || {});
   const [l2Addresses, setL2Addresses] = useState(
-    !!name?.coin_types["2147483658"] || false
+    !!name?.coin_types?.["2147483658"] || false
   ); // checks op only
   const [open, setOpen] = useState(false);
   const [fetching, setFetching] = useState(false);
@@ -308,7 +308,7 @@ function SubnameCard({
     setAddress(name.resolvedAddress || "");
     setTextRecords(name?.text_records || {});
     setCoinTypes(name?.coin_types || {});
-    setL2Addresses(!!name.coin_types["2147483658"] || false);
+    setL2Addresses(!!name?.coin_types?.["2147483658"] || false);
   }, [name]);
 
   // update textRecords using state
