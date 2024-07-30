@@ -29,7 +29,7 @@ export default function ApiKeyInput({ value, onChange }: ApiKeyInputProps) {
           className="absolute inset-y-0 right-0 flex items-center justify-center w-10 h-full text-gray-500"
           size="icon"
           variant="ghost"
-          onClick={togglePasswordVisibility}
+          onMouseDown={togglePasswordVisibility}
         >
           {showPassword ? (
             <EyeOffIcon className="h-5 w-5" />

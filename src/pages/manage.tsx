@@ -141,7 +141,7 @@ export default function Manage() {
         <div className="flex  flex-col">
           <div className="  lg:pl-16">
             <Button
-              onClick={() => {
+              onMouseDown={() => {
                 router.push("/");
               }}
               className="text-white hover:bg-neutral-800 self-start bg-transparent hover:text-emerald-500 hover:bg-transparent"
@@ -153,10 +153,13 @@ export default function Manage() {
 
           {/* Box */}
           <div className="flex shadow-lg w-full max-w-[800px] min-h-[480px]  bg-neutral-800  p-8 flex-col rounded mx-auto">
-            <div className="flex text-white justify-between items-center">
+            <div className="flex text-white justify-between items-start">
               <div className="flex items-center">
                 <div className="text-white flex text-center text-lg font-bold items-center flex-wrap">
                   <div className="flex divide-x  divide-neutral-600 bg-neutral-750  rounded-md mr-2">
+                    <div className="p-2 text-base">
+                      <span className="mx-1 ">{basename}</span>
+                    </div>
                     {hasApiKey && (
                       <EditDomainModal
                         basename={basename}
@@ -172,15 +175,13 @@ export default function Manage() {
                         }
                       />
                     )}
-                    <div className="p-2 text-base">
-                      <span className="mx-1 ">{basename}</span>
-                    </div>
                   </div>
                   <span className="text-neutral-300  text-base font-normal">
                     (
                     {loading
                       ? "loading..."
-                      : subnames.length.toString() + " Subnames"}
+                      : subnames.length.toString() +
+                        (subnames.length == 1 ? " Subname" : " Subnames")}
                     )
                   </span>
                 </div>
@@ -442,6 +443,7 @@ function SubnameCard({
               </span>
               <span className="text-white">{basename || ""}</span>
             </div>
+
             <div
               className={`text-xs flex items-center  rounded-lg px-2 ${
                 name?.nameType === "offchain"
@@ -453,14 +455,24 @@ function SubnameCard({
             </div>
           </div>
           <div className="text-xs text-white flex justify-between  font-mono font-thin">
-            {name?.resolvedAddress && shortenAddress(name.resolvedAddress)}
+            <div className="flex gap-2 items-start">
+              {name?.resolvedAddress && shortenAddress(name.resolvedAddress)}
+              {name.nameType === "offchain" && (
+                <Image
+                  width={12}
+                  height={12}
+                  src="/edit-icon.svg"
+                  alt="edit name"
+                />
+              )}
+            </div>
             <div className="group-hover:opacity-100  opacity-0 transition-opacity duration-300">
               <div className="flex gap-2">
                 <Link
                   href={`https://app.ens.domains/name/${name.name}`}
                   target="_blank"
                   className="z-50"
-                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
                 >
                   <Image
                     src="/icon-ens.svg"
@@ -474,7 +486,7 @@ function SubnameCard({
                   href={`https://etherscan.io/address/${address}`}
                   target="_blank"
                   className="z-50"
-                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
                 >
                   <Image
                     src="/icon-etherscan.svg"
@@ -504,7 +516,7 @@ function SubnameCard({
               {name.nameType === "offchain" && (
                 <div className="mb-2 text-right">
                   <span
-                    onClick={() => setEditTab("profile")}
+                    onMouseDown={() => setEditTab("profile")}
                     className=" text-neutral-300 text-sm  cursor-pointer hover:text-emerald-400"
                   >
                     More Records &rsaquo;
@@ -534,7 +546,7 @@ function SubnameCard({
                 id="address"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className=" bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded"
+                className=" bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded text-wrap"
                 disabled={name.nameType === "onchain"}
                 placeholder="0x123..."
               />
@@ -546,15 +558,15 @@ function SubnameCard({
             <div className="">
               <div className="mb-2 mt-2 ">
                 <span
-                  onClick={() => setEditTab("subname")}
+                  onMouseDown={() => setEditTab("subname")}
                   className="text-neutral-300 text-sm  cursor-pointer hover:text-emerald-400"
                 >
                   &lsaquo; {subname}.{basename}
                 </span>
               </div>
-              <div className="justify-start items-center gap-5 inline-flex mb-5">
+              <div className="justify-start items-center gap-5 inline-flex">
                 <div
-                  onClick={() => setEditTab("profile")}
+                  onMouseDown={() => setEditTab("profile")}
                   className={`${
                     editTab === "profile"
                       ? " border-emerald-400"
@@ -579,7 +591,7 @@ function SubnameCard({
                       ? " border-emerald-400"
                       : "border-neutral-500"
                   } px-1 pb-3 border-b-2 justify-center items-center gap-2 flex cursor-pointer`}
-                  onClick={() => setEditTab("links")}
+                  onMouseDown={() => setEditTab("links")}
                 >
                   <div className="justify-start items-center gap-1 flex">
                     <div
@@ -594,7 +606,7 @@ function SubnameCard({
                   </div>
                 </div>
                 <div
-                  onClick={() => setEditTab("addresses")}
+                  onMouseDown={() => setEditTab("addresses")}
                   className={`${
                     editTab === "addresses"
                       ? " border-emerald-400"
@@ -753,7 +765,7 @@ function SubnameCard({
                       Bitcoin
                     </Label>
                   </div>
-                  <div className="relative">
+                  <div className="relative mb-4">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                       <Image
                         src="/chains/icon-bitcoin.png"
@@ -768,16 +780,15 @@ function SubnameCard({
                       value={coinTypes?.["0"] || ""}
                       onChange={(e) => updateCoinTypes("0", e.target.value)}
                       className="pl-[42px] bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded placeholder:text-neutral-500"
-                      placeholder="0x0"
+                      placeholder="bc1"
                     />
                   </div>
-                  <AddressCheck address={coinTypes?.["0"] || ""} />
                   <div className="mb-2">
                     <Label htmlFor="address" className="text-right text-white">
                       Solona
                     </Label>
                   </div>
-                  <div className="relative">
+                  <div className="relative  mb-4">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                       <Image
                         src="/chains/icon-solana.png"
@@ -792,10 +803,9 @@ function SubnameCard({
                       value={coinTypes?.["501"] || ""}
                       onChange={(e) => updateCoinTypes("501", e.target.value)}
                       className="pl-[42px] bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded placeholder:text-neutral-500"
-                      placeholder="0x0"
+                      placeholder="solana"
                     />
                   </div>
-                  <AddressCheck address={coinTypes?.["501"] || ""} />
                 </div>
                 <hr className=" border-neutral-750" />
 
@@ -844,7 +854,7 @@ function SubnameCard({
                         ? "bg-emerald-600 justify-end"
                         : "bg-neutral-600 justify-start"
                     } h-6 p-1 w-[44px] rounded-[999px] justify-start items-center gap-2.5 flex`}
-                    onClick={() => setL2Addresses(!l2Addresses)}
+                    onMouseDown={() => setL2Addresses(!l2Addresses)}
                   >
                     <div className="w-4 h-4 bg-neutral-300 rounded-full" />
                   </div>
@@ -865,7 +875,7 @@ function SubnameCard({
               <Button
                 className="w-24 float-right"
                 disabled={!isAddress(address, { strict: false })}
-                onClick={handleEditSubname}
+                onMouseDown={handleEditSubname}
               >
                 Save
               </Button>
@@ -873,7 +883,7 @@ function SubnameCard({
                 <Button
                   variant="outline"
                   className=" hover:bg-red-400 border-red-400 border text-red-400 w-24"
-                  onClick={handleDeleteSubname}
+                  onMouseDown={handleDeleteSubname}
                 >
                   Delete
                 </Button>
@@ -1039,7 +1049,7 @@ function AddSubnameModal({
             disabled={
               !isAddress(address, { strict: false }) || subnameError !== ""
             }
-            onClick={handleAddSubname}
+            onMouseDown={handleAddSubname}
           >
             Save
           </Button>
@@ -1154,7 +1164,7 @@ function GetApiKeyMessage({
         <ExclamationTriangleIcon width={16} height={16} />
         Get an API key to manage subnames.
       </div>
-      <Button onClick={getApiKey}>{buttonText}</Button>
+      <Button onMouseDown={getApiKey}>{buttonText}</Button>
     </div>
   );
 }
@@ -1425,7 +1435,7 @@ function EditDomainModal({
         </div>
 
         <DialogFooter>
-          <Button onClick={saveDomainInfo} className="w-24">
+          <Button onMouseDown={saveDomainInfo} className="w-24">
             Save
           </Button>
         </DialogFooter>

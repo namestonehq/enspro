@@ -7,9 +7,7 @@ import {
   PaginationItem,
   PaginationLink,
 } from "./ui/pagination";
-
-import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
-
+import Image from "next/image";
 import {
   Table,
   TableBody,
@@ -100,7 +98,7 @@ export default function NameTable({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-neutral-800">
-              <TableHead className=" text-neutral-300">Name</TableHead>
+              <TableHead className="ml-[28px] text-neutral-300">Name</TableHead>
               <TableHead className=" text-neutral-300">Expiration</TableHead>
             </TableRow>
           </TableHeader>
@@ -113,10 +111,27 @@ export default function NameTable({
                     : ""
                 }`}
                 key={name.name}
-                onClick={() => handleRowClick(name.name)}
+                onMouseDown={() => handleRowClick(name.name)}
               >
-                <TableCell className="font-medium flex   min-w-40 sm:min-w-96 grow  justify-between ">
-                  {name.name}
+                <TableCell
+                  className={`flex  min-w-40 sm:min-w-96 grow  justify-start`}
+                >
+                  {name.status && (
+                    <Image
+                      width={20}
+                      height={20}
+                      src="icon-lightning.svg"
+                      alt="offchain"
+                    />
+                  )}
+                  <span
+                    className={`font-medium  ${
+                      name.status ? "ml-2" : "ml-[28px]"
+                    }`}
+                  >
+                    {" "}
+                    {name.name}
+                  </span>
                 </TableCell>
 
                 <TableCell className="w-full  ">
@@ -227,7 +242,7 @@ const Pager = ({
               <PaginationEllipsis />
             ) : (
               <PaginationLink
-                onClick={() => handlePageChange(pageNumber as number)}
+                onMouseDown={() => handlePageChange(pageNumber as number)}
                 className={currentPage === pageNumber ? "bg-neutral-600" : ""}
               >
                 {pageNumber}

@@ -158,7 +158,7 @@ function EnableButton({
   }
 
   return (
-    <Button onClick={handleClick} className="w-48">
+    <Button onMouseDown={handleClick} className="w-48">
       {" "}
       {showSpinner && (
         <Image

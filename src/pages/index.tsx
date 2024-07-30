@@ -12,7 +12,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-
+import { Input } from "../components/ui/input";
 type Name = {
   name: string;
   resolver?: string;
@@ -32,7 +32,9 @@ type Name = {
 
 const Home: NextPage = () => {
   const [selectedName, setSelectedName] = useState("");
+  const [searchText, setSearchText] = useState("");
   const [names, setNames] = useState<Name[]>([]);
+  const [displayNames, setDisplayNames] = useState<Name[]>([]);
   const { address, chain } = useAccount();
   const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
@@ -66,6 +68,14 @@ const Home: NextPage = () => {
     }
   }, [address, authenticated, chain]);
 
+  //useEffect for search
+  useEffect(() => {
+    const filteredNames = names.filter((name) =>
+      name.name.toLowerCase().includes(searchText.toLowerCase())
+    );
+    setDisplayNames(filteredNames);
+  }, [searchText, names]);
+
   return (
     <div className="bg-grid bg-neutral-900 -z-20">
       {/* Toaster */}
@@ -77,10 +87,30 @@ const Home: NextPage = () => {
           {/* Box */}
           {address && authenticated && chain ? (
             <div className="flex mt-8 shadow-lg w-full max-w-[800px] min-h-[480px] pb-4 p-4 sm:p-8 flex-col  bg-neutral-800   rounded mx-auto">
-              <div className="flex justify-between">
-                <div className="mb-4 text-lg font-bold text-white">
+              <div className="flex justify-between mb-4">
+                <div className=" text-lg font-bold text-white">
                   {names.length === 0 ? "" : "Select a Name"}
                 </div>
+                {names.length > 0 && (
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <Image
+                        src="icon-search.svg"
+                        alt="url"
+                        width={12}
+                        height={12}
+                        className=""
+                      />
+                    </div>
+                    <Input
+                      id="url"
+                      value={searchText}
+                      onChange={(e) => setSearchText(e.target.value)}
+                      className="pl-[36px] bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded placeholder:text-neutral-500"
+                      placeholder="Search Names"
+                    />
+                  </div>
+                )}
               </div>
               {
                 loading ? (
@@ -100,7 +130,7 @@ const Home: NextPage = () => {
                   <NoNamesFound /> // Render this component when names array is empty
                 ) : (
                   <NameTable
-                    names={names}
+                    names={displayNames}
                     selectedName={selectedName}
                     onSelectName={handleSelectName}
                   />
