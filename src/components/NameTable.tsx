@@ -98,7 +98,7 @@ export default function NameTable({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-neutral-800">
-              <TableHead className="ml-[28px] text-neutral-300">Name</TableHead>
+              <TableHead className="pl-[36px] text-neutral-300">Name</TableHead>
               <TableHead className=" text-neutral-300">Expiration</TableHead>
             </TableRow>
           </TableHeader>
