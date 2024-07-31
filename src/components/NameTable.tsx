@@ -98,7 +98,9 @@ export default function NameTable({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-neutral-800">
-              <TableHead className="pl-[36px] text-neutral-300">Name</TableHead>
+              <TableHead className="pl-[36px] text-neutral-300 flex-grow-0">
+                Name
+              </TableHead>
               <TableHead className=" text-neutral-300">Expiration</TableHead>
             </TableRow>
           </TableHeader>
@@ -113,9 +115,7 @@ export default function NameTable({
                 key={name.name}
                 onMouseDown={() => handleRowClick(name.name)}
               >
-                <TableCell
-                  className={`flex  min-w-40 sm:min-w-96 grow  justify-start`}
-                >
+                <TableCell className={`flex  justify-start`}>
                   {name.status && (
                     <Image
                       width={20}
