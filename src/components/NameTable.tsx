@@ -134,7 +134,7 @@ export default function NameTable({
                   </span>
                 </TableCell>
 
-                <TableCell className="w-full  ">
+                <TableCell className="flex-1  ">
                   {name.expiryDate
                     ? new Date(name.expiryDate.value).toLocaleDateString(
                         undefined,
