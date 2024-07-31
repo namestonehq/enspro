@@ -57,12 +57,18 @@ export default async function handler(
     return;
   }
 
+  console.log(body);
+
   try {
     if (method === "delete") {
       const data = await makeRequest(
         "https://namestone.xyz/api/public_v1/revoke-name",
         apiKey,
-        body
+        {
+          domain: body.domain,
+          name: body.originalName,
+          address: address,
+        }
       );
       res.status(200).json(data);
     } else if (method === "set") {

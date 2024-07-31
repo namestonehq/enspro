@@ -24,6 +24,7 @@ import { ApiKeyModal } from "../components/ApiKeyModal";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
 import { isAddress } from "viem";
+import AddressCheck from "../components/AddressCheck";
 import Footer from "../components/Footer";
 import Image from "next/image";
 import Link from "next/link";
@@ -31,6 +32,7 @@ import _ from "lodash";
 import toast, { Toaster } from "react-hot-toast";
 import { Description } from "@radix-ui/react-dialog";
 import { text } from "stream/consumers";
+import SubnameModal from "../components/SubnameModal";
 
 const client = createPublicClient({
   batch: { multicall: true },
@@ -164,7 +166,7 @@ export default function Manage() {
                       <EditDomainModal
                         basename={basename}
                         trigger={
-                          <button className="p-2 px-3  rounded-md transition-colors duration-300 flex hover:rounded-tr-none hover:rounded-br-none rounded-tr-none  rounded-br-none hover:rounded-md hover:rounded-tl-md hover:bg-neutral-600 items-center">
+                          <button className="p-2 px-3  rounded-md transition-colors duration-300 flex hover:rounded-tl-none hover:rounded-bl-none rounded-tl-none  rounded-bl-none hover:rounded-md hover:rounded-tr-md hover:bg-neutral-600 items-center">
                             <Image
                               width={18}
                               height={18}
@@ -189,12 +191,20 @@ export default function Manage() {
 
               <div>
                 <div className="w-full flex text-white items-center">
-                  <AddSubnameModal
-                    disabled={!isEnable || !hasApiKey}
+                  <SubnameModal
+                    name={undefined}
                     basename={basename}
                     refetchSubnames={refetchSubnames}
                     existingSubnames={subnames}
-                  />
+                    modalType="add"
+                  >
+                    <Button
+                      disabled={!isEnable || !hasApiKey}
+                      className="text-sm w-24"
+                    >
+                      Add
+                    </Button>
+                  </SubnameModal>
                 </div>
               </div>
             </div>
@@ -267,6 +277,7 @@ export default function Manage() {
                           name={name}
                           basename={basename}
                           refetchSubnames={refetchSubnames}
+                          existingSubnames={subnames}
                         />
                       ))}
                     </div>
@@ -287,851 +298,71 @@ function SubnameCard({
   name,
   basename,
   refetchSubnames,
+  existingSubnames,
 }: {
   lowOpacity: boolean;
   name: Subname;
   basename: string;
   refetchSubnames: () => void;
+  existingSubnames: Subname[];
 }) {
-  const [subname, setSubname] = useState(name.labelName || "");
-  const [address, setAddress] = useState(name.resolvedAddress || "");
-  const [textRecords, setTextRecords] = useState(name?.text_records || {});
-  const [coinTypes, setCoinTypes] = useState(name?.coin_types || {});
-  const [l2Addresses, setL2Addresses] = useState(
-    !!name?.coin_types?.["2147483658"] || false
-  ); // checks op only
-  const [open, setOpen] = useState(false);
-  const [fetching, setFetching] = useState(false);
-  const [editTab, setEditTab] = useState("subname"); //subname, profile, links, addresses
-
-  useEffect(() => {
-    setSubname(name.labelName || "");
-    setAddress(name.resolvedAddress || "");
-    setTextRecords(name?.text_records || {});
-    setCoinTypes(name?.coin_types || {});
-    setL2Addresses(!!name?.coin_types?.["2147483658"] || false);
-  }, [name]);
-
-  // update textRecords using state
-  function updateTextRecords(key: string, value: string) {
-    setTextRecords((prev) => {
-      return { ...prev, [key]: value };
-    });
-  }
-  // update coinTypes using state
-  function updateCoinTypes(key: string, value: string) {
-    setCoinTypes((prev) => {
-      return { ...prev, [key]: value };
-    });
-  }
-
-  async function manageSubname({
-    method,
-    name,
-    basename,
-    resolvedAddress,
-    originalName,
-    textRecords,
-    coinTypes,
-  }: {
-    method: ManageMethodType;
-    name: string;
-    basename: string;
-    resolvedAddress: Address;
-    originalName?: string;
-    textRecords?: Record<string, string>;
-    coinTypes?: Record<string, string>;
-  }) {
-    const body = {
-      domain: basename,
-      name: name,
-      address: resolvedAddress,
-      method: method,
-      originalName: originalName,
-      coin_types: coinTypes,
-      text_records: textRecords,
-    };
-
-    if (fetching) return;
-    setFetching(true);
-    try {
-      const response = await fetch("/api/edit-name", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-      console.log({ body, response });
-      if (response.ok) {
-        const data = await response.json();
-        console.log(`Subname method ${method} executed successfully:`, data);
-        toast.success(`Subname ${method} successful`);
-      } else {
-        console.error(`Failed to execute ${method} for subname`);
-        toast.error(`Failed to ${method} subname`);
-      }
-      setFetching(false);
-    } catch (error) {
-      console.error(`Network Error method:${method}`, error);
-      toast.error(`Network Error: Failed to ${method} subname`);
-    }
-  }
-
-  const handleEditSubname = async () => {
-    const originalName = name.labelName || ""; // The original subname
-    let coinTypesFull = {
-      ...coinTypes,
-      "2147483658": "",
-      "2147483785": "",
-      "2147525809": "",
-      "2147492101": "",
-    } as Record<string, string>;
-    if (l2Addresses) {
-      coinTypesFull = {
-        ...coinTypes,
-        "2147483658": address,
-        "2147483785": address,
-        "2147525809": address,
-        "2147492101": address,
-      };
-    }
-    await manageSubname({
-      method: "edit",
-      name: subname,
-      basename: basename,
-      resolvedAddress: address as Address,
-      originalName: originalName,
-      textRecords: textRecords,
-      coinTypes: coinTypesFull,
-    }).then(() => {
-      refetchSubnames();
-    });
-    setOpen(false);
-  };
-
-  const handleDeleteSubname = async () => {
-    await manageSubname({
-      method: "delete",
-      name: subname,
-      basename: basename,
-      resolvedAddress: address as Address,
-    }).then(() => {
-      refetchSubnames();
-    });
-    setOpen(false);
-  };
-
+  const [hovering, setHovering] = useState(false);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <div
-          className={`${
-            lowOpacity ? "opacity-50 pointer-events-none" : ""
-          } cursor-pointer group hover:bg-neutral-700 transition-colors  duration-300 bg-neutral-750  grow p-4 flex flex-col rounded  gap-2 `}
-        >
-          <div className="flex justify-between">
-            <div className="text-sm  ">
-              <span
-                className={`${
-                  name?.nameType === "offchain"
-                    ? "text-emerald-400"
-                    : "text-white/70"
-                }`}
-              >
-                {name?.labelName || ""}.
-              </span>
-              <span className="text-white">{basename || ""}</span>
-            </div>
-
-            <div
-              className={`text-xs flex items-center  rounded-lg px-2 ${
+    <SubnameModal
+      name={name}
+      basename={basename}
+      refetchSubnames={refetchSubnames}
+      existingSubnames={existingSubnames}
+      modalType="edit"
+    >
+      <div
+        className={`${
+          lowOpacity ? "opacity-50 pointer-events-none" : ""
+        } cursor-pointer group hover:bg-neutral-700 transition-colors duration-300 bg-neutral-750  grow p-4 flex flex-row rounded justify-between gap-2 `}
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
+      >
+        <div className="flex flex-col">
+          <div className="text-sm  ">
+            <span
+              className={` ${
                 name?.nameType === "offchain"
-                  ? "bg-emerald-500/15 text-emerald-400"
-                  : "bg-neutral-600 text-white/70"
+                  ? "text-emerald-400"
+                  : "text-white/70"
               }`}
             >
-              {name?.nameType}
-            </div>
+              {name?.labelName || ""}.
+            </span>
+            <span className="text-white">{basename || ""}</span>
           </div>
+
           <div className="text-xs text-white flex justify-between  font-mono font-thin">
             <div className="flex gap-2 items-start">
               {name?.resolvedAddress && shortenAddress(name.resolvedAddress)}
-              {name.nameType === "offchain" && (
-                <Image
-                  width={12}
-                  height={12}
-                  src="/edit-icon.svg"
-                  alt="edit name"
-                />
-              )}
-            </div>
-            <div className="group-hover:opacity-100  opacity-0 transition-opacity duration-300">
-              <div className="flex gap-2">
-                <Link
-                  href={`https://app.ens.domains/name/${name.name}`}
-                  target="_blank"
-                  className="z-50"
-                  onMouseDown={(e) => e.stopPropagation()}
-                >
-                  <Image
-                    src="/icon-ens.svg"
-                    alt="ens icon"
-                    width={16}
-                    height={16}
-                    className="hover:opacity-80 transition-opacity duration-300"
-                  />
-                </Link>
-                <Link
-                  href={`https://etherscan.io/address/${address}`}
-                  target="_blank"
-                  className="z-50"
-                  onMouseDown={(e) => e.stopPropagation()}
-                >
-                  <Image
-                    src="/icon-etherscan.svg"
-                    alt="etherscan icon"
-                    width={16}
-                    height={16}
-                    className="hover:opacity-80 transition-opacity duration-300"
-                  />
-                </Link>
-              </div>
             </div>
           </div>
         </div>
-      </DialogTrigger>
-      <DialogContent
-        className="sm:max-w-[425px]  bg-neutral-800"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-      >
-        {editTab === "subname" ? (
-          <>
-            <DialogHeader>
-              <DialogTitle className="flex text-white">
-                {name.nameType === "onchain" ? "View Subname" : "Edit Subname"}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="">
-              {name.nameType === "offchain" && (
-                <div className="mb-2 text-right">
-                  <span
-                    onMouseDown={() => setEditTab("profile")}
-                    className=" text-neutral-300 text-sm  cursor-pointer hover:text-emerald-400"
-                  >
-                    More Records &rsaquo;
-                  </span>
-                </div>
-              )}
-              <div className="mb-2">
-                <Label htmlFor="subname" className="text-right text-white">
-                  Subname
-                </Label>
-              </div>
-              <SubnameInput
-                error=""
-                setSubname={setSubname}
-                subname={subname}
-                basename={basename}
-                nameType={name.nameType}
-              />
-            </div>
-            <div className="">
-              <div className="mb-2">
-                <Label htmlFor="address" className="text-right text-white">
-                  Address
-                </Label>
-              </div>
-              <Input
-                id="address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className=" bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded text-wrap"
-                disabled={name.nameType === "onchain"}
-                placeholder="0x123..."
-              />
-              <AddressCheck address={address} />
-            </div>
-          </>
+
+        {hovering && name?.nameType === "offchain" ? (
+          <Image width={18} height={18} src="/edit-icon.svg" alt="edit name" />
         ) : (
-          <>
-            <div className="">
-              <div className="mb-2 mt-2 ">
-                <span
-                  onMouseDown={() => setEditTab("subname")}
-                  className="text-neutral-300 text-sm  cursor-pointer hover:text-emerald-400"
-                >
-                  &lsaquo; {subname}.{basename}
-                </span>
-              </div>
-              <div className="justify-start items-center gap-5 inline-flex">
-                <div
-                  onMouseDown={() => setEditTab("profile")}
-                  className={`${
-                    editTab === "profile"
-                      ? " border-emerald-400"
-                      : "border-neutral-500"
-                  } px-1 pb-3 border-b-2 justify-center items-center gap-2 flex cursor-pointer`}
-                >
-                  <div className="justify-start items-center gap-1 flex">
-                    <div
-                      className={`${
-                        editTab === "profile"
-                          ? "text-emerald-400"
-                          : "text-neutral-300"
-                      } text-sm`}
-                    >
-                      Profile
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className={`${
-                    editTab === "links"
-                      ? " border-emerald-400"
-                      : "border-neutral-500"
-                  } px-1 pb-3 border-b-2 justify-center items-center gap-2 flex cursor-pointer`}
-                  onMouseDown={() => setEditTab("links")}
-                >
-                  <div className="justify-start items-center gap-1 flex">
-                    <div
-                      className={`${
-                        editTab === "links"
-                          ? "text-emerald-400"
-                          : "text-neutral-300"
-                      } text-sm`}
-                    >
-                      Links
-                    </div>
-                  </div>
-                </div>
-                <div
-                  onMouseDown={() => setEditTab("addresses")}
-                  className={`${
-                    editTab === "addresses"
-                      ? " border-emerald-400"
-                      : "border-neutral-500"
-                  } px-1 pb-3 border-b-2 justify-center items-center gap-2 flex cursor-pointer`}
-                >
-                  <div className="justify-start items-center gap-1 flex">
-                    <div
-                      className={`${
-                        editTab === "addresses"
-                          ? "text-emerald-400"
-                          : "text-neutral-300"
-                      } text-sm`}
-                    >
-                      Addresses
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {editTab === "profile" && (
-              <div className="">
-                <div className="mb-2">
-                  <Label htmlFor="avatar" className="text-right text-white">
-                    Avatar
-                  </Label>
-                </div>
-                <Input
-                  id="avatar"
-                  value={textRecords?.avatar || ""}
-                  onChange={(e) => updateTextRecords("avatar", e.target.value)}
-                  className=" bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded mb-5"
-                  placeholder="URL (https://)"
-                />
-                <div className="mb-2">
-                  <Label
-                    htmlFor="description"
-                    className="text-right text-white"
-                  >
-                    Description
-                  </Label>
-                </div>
-                <Input
-                  id="description"
-                  value={textRecords?.description || ""}
-                  onChange={(e) =>
-                    updateTextRecords("description", e.target.value)
-                  }
-                  className=" bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded  mb-5"
-                  placeholder="I’m a web3 developer"
-                />
-                <div className="mb-2">
-                  <Label htmlFor="location" className="text-right text-white">
-                    Location
-                  </Label>
-                </div>
-                <Input
-                  id="location"
-                  value={textRecords?.location || ""}
-                  onChange={(e) =>
-                    updateTextRecords("location", e.target.value)
-                  }
-                  className=" bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded  mb-5"
-                  placeholder="NYC"
-                />
-              </div>
-            )}
-            {editTab === "links" && (
-              <>
-                <Label className=" text-white">Links</Label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <Image
-                      src="icon-link.svg"
-                      alt="url"
-                      width={12}
-                      height={12}
-                      className=""
-                    />
-                  </div>
-                  <Input
-                    id="url"
-                    value={textRecords?.url || ""}
-                    onChange={(e) => updateTextRecords("url", e.target.value)}
-                    className="pl-[36px] bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded placeholder:text-neutral-500"
-                    placeholder="https://namestone.xyz/"
-                  />
-                </div>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <Image
-                      src="icon-x.svg"
-                      alt="x / twitter"
-                      width={12}
-                      height={12}
-                      className=""
-                    />
-                  </div>
-                  <Input
-                    id="twitter"
-                    value={textRecords?.["com.twitter"] || ""}
-                    onChange={(e) =>
-                      updateTextRecords("com.twitter", e.target.value)
-                    }
-                    className="pl-[36px] bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded placeholder:text-neutral-500"
-                    placeholder="AlexSlobodnik"
-                  />
-                </div>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <Image
-                      src="icon-github.svg"
-                      alt="github"
-                      width={12}
-                      height={12}
-                      className=""
-                    />
-                  </div>
-                  <Input
-                    id="github"
-                    value={textRecords?.["com.github"] || ""}
-                    onChange={(e) =>
-                      updateTextRecords("com.github", e.target.value)
-                    }
-                    className="pl-[36px] bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded placeholder:text-neutral-500"
-                    placeholder="aslobodnik"
-                  />
-                </div>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <Image
-                      src="icon-discord.svg"
-                      alt="discord"
-                      width={12}
-                      height={12}
-                      className=""
-                    />
-                  </div>
-                  <Input
-                    id="discord"
-                    value={textRecords?.["com.discord"] || ""}
-                    onChange={(e) =>
-                      updateTextRecords("com.discord", e.target.value)
-                    }
-                    className="pl-[36px] bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded placeholder:text-neutral-500"
-                    placeholder="aslobodnik"
-                  />
-                </div>
-              </>
-            )}
-            {editTab === "addresses" && (
-              <>
-                <div className="">
-                  <div className="mb-2">
-                    <Label htmlFor="address" className="text-right text-white">
-                      Bitcoin
-                    </Label>
-                  </div>
-                  <div className="relative mb-4">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <Image
-                        src="/chains/icon-bitcoin.png"
-                        alt="bitcoin"
-                        width={18}
-                        height={18}
-                        className=""
-                      />
-                    </div>
-                    <Input
-                      id="bitcoin"
-                      value={coinTypes?.["0"] || ""}
-                      onChange={(e) => updateCoinTypes("0", e.target.value)}
-                      className="pl-[42px] bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded placeholder:text-neutral-500"
-                      placeholder="bc1"
-                    />
-                  </div>
-                  <div className="mb-2">
-                    <Label htmlFor="address" className="text-right text-white">
-                      Solona
-                    </Label>
-                  </div>
-                  <div className="relative  mb-4">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <Image
-                        src="/chains/icon-solana.png"
-                        alt="solana"
-                        width={18}
-                        height={18}
-                        className=""
-                      />
-                    </div>
-                    <Input
-                      id="solana"
-                      value={coinTypes?.["501"] || ""}
-                      onChange={(e) => updateCoinTypes("501", e.target.value)}
-                      className="pl-[42px] bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded placeholder:text-neutral-500"
-                      placeholder="solana"
-                    />
-                  </div>
-                </div>
-                <hr className=" border-neutral-750" />
-
-                <div className="justify-between items-center flex">
-                  <div className="flex-col justify-center items-start gap-2 inline-flex">
-                    <div className="text-white text-sm font-bold ">
-                      Add L2 Address Support
-                    </div>
-                    <div className="text-neutral-300 text-sm font-medium">
-                      Add and match ETH address
-                    </div>
-                    <div className="justify-start items-center gap-3 inline-flex">
-                      <Image
-                        src="/chains/icon-op.png"
-                        alt="op"
-                        width={18}
-                        height={18}
-                        className=""
-                      />
-                      <Image
-                        src="/chains/icon-polygon.png"
-                        alt="op"
-                        width={18}
-                        height={18}
-                        className=""
-                      />
-                      <Image
-                        src="/chains/icon-arb.png"
-                        alt="op"
-                        width={18}
-                        height={18}
-                        className=""
-                      />
-                      <Image
-                        src="/chains/icon-base.png"
-                        alt="op"
-                        width={18}
-                        height={18}
-                        className=""
-                      />
-                    </div>
-                  </div>
-                  <div
-                    className={`${
-                      l2Addresses
-                        ? "bg-emerald-600 justify-end"
-                        : "bg-neutral-600 justify-start"
-                    } h-6 p-1 w-[44px] rounded-[999px] justify-start items-center gap-2.5 flex`}
-                    onMouseDown={() => setL2Addresses(!l2Addresses)}
-                  >
-                    <div className="w-4 h-4 bg-neutral-300 rounded-full" />
-                  </div>
-                </div>
-                <div className="h-[33px] px-3 py-[9px] bg-[#333333] rounded-md justify-start items-center gap-3 inline-flex">
-                  <div className="text-neutral-400 text-xs font-medium ">
-                    {address}
-                  </div>
-                </div>
-              </>
-            )}
-          </>
+          <div
+            className={`text-xs flex items-center  rounded-lg px-2 pt-[2px] pb-[2px] ${
+              name?.nameType === "offchain"
+                ? "bg-emerald-500/15 text-emerald-400"
+                : "bg-neutral-600 text-white/70"
+            }`}
+          >
+            {name?.nameType}
+          </div>
         )}
-
-        <DialogFooter>
-          {name.nameType === "offchain" ? (
-            <div className="flex w-full justify-between flex-row-reverse">
-              <Button
-                className="w-24 float-right"
-                disabled={!isAddress(address, { strict: false })}
-                onMouseDown={handleEditSubname}
-              >
-                Save
-              </Button>
-              {editTab === "subname" && (
-                <Button
-                  variant="outline"
-                  className=" hover:bg-red-400 border-red-400 border text-red-400 w-24"
-                  onMouseDown={handleDeleteSubname}
-                >
-                  Delete
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="w-full  text-neutral-300 text-center -mt-4">
-              Edit onchain names at{" "}
-              <Link
-                target="_blank"
-                href={`https://app.ens.domains/${name.name}`}
-              >
-                <span className=" text-emerald-400 transition-colors duration-300 hover:text-emerald-500 underline">
-                  ens.domains
-                </span>
-              </Link>
-            </div>
-          )}
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </SubnameModal>
   );
 }
 
 function shortenAddress(address: Address) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}
-
-function AddSubnameModal({
-  basename,
-  disabled,
-  refetchSubnames,
-  existingSubnames,
-}: {
-  basename: string;
-  disabled: boolean;
-  refetchSubnames: () => void;
-  existingSubnames: Subname[];
-}) {
-  const [subname, setSubname] = useState("");
-  const [address, setAddress] = useState("");
-  const [open, setOpen] = useState(false);
-  const [subnameError, setSubnameError] = useState("");
-  const [fetching, setFetching] = useState(false);
-
-  async function manageSubname({
-    method,
-    name,
-    basename,
-    resolvedAddress,
-    originalName,
-  }: {
-    method: ManageMethodType;
-    name: string;
-    basename: string;
-    resolvedAddress: Address;
-    originalName?: string;
-  }) {
-    const body = {
-      domain: basename,
-      name: name,
-      address: resolvedAddress,
-      method: method,
-      originalName: originalName,
-    };
-
-    if (fetching) return;
-    setFetching(true);
-    try {
-      const response = await fetch("/api/edit-name", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-      console.log({ body, response });
-      if (response.ok) {
-        const data = await response.json();
-        console.log(`Subname method ${method} executed successfully:`, data);
-        toast.success(`Subname ${method} successful`);
-      } else {
-        console.error(`Failed to execute ${method} for subname`);
-        toast.error(`Failed to ${method} subname`);
-      }
-      setFetching(false);
-    } catch (error) {
-      console.error(`Network Error method:${method}`, error);
-      toast.error(`Network Error: Failed to ${method} subname`);
-    }
-  }
-
-  const handleAddSubname = async () => {
-    await manageSubname({
-      method: "set",
-      name: subname,
-      basename: basename,
-      resolvedAddress: address as Address,
-    }).then(() => {
-      refetchSubnames();
-    });
-
-    // Clear the input fields after adding the subname
-    setSubname("");
-    setAddress("");
-    setOpen(false);
-  };
-
-  // use Effect to check if the subname already exists
-  useEffect(() => {
-    if (existingSubnames.find((name) => name.labelName === subname)) {
-      setSubnameError("Subname already exists");
-    } else {
-      setSubnameError("");
-    }
-  }, [subname, existingSubnames]);
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button disabled={disabled} className="text-sm w-24">
-          Add
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]  bg-neutral-800">
-        <DialogHeader>
-          <DialogTitle className="text-white">Add Subname</DialogTitle>
-        </DialogHeader>
-
-        <div className="">
-          <div className="mb-2">
-            <Label htmlFor="subname" className="text-right text-white">
-              Subname
-            </Label>
-          </div>
-
-          <SubnameInput
-            error={subnameError}
-            subname={subname}
-            basename={basename}
-            setSubname={setSubname}
-          />
-        </div>
-        <div className="">
-          <div className="mb-2">
-            <Label htmlFor="address" className="text-right text-white">
-              Address
-            </Label>
-          </div>
-          <Input
-            id="address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className="col-span-3 focus-visible:ring-0 text-white font-mono text-xs bg-neutral-750 placeholder:text-nuetral-400 placeholder:text-sm"
-            placeholder="0x..."
-          />
-          <AddressCheck address={address} />
-        </div>
-
-        <DialogFooter>
-          <Button
-            className="w-24"
-            disabled={
-              !isAddress(address, { strict: false }) || subnameError !== ""
-            }
-            onMouseDown={handleAddSubname}
-          >
-            Save
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function AddressCheck({ address }: { address: string }) {
-  return (
-    <div className="text-red-500 ml-1 mt-2 font-mono text-xs h-5">
-      {!isAddress(address, { strict: false }) && address !== "" && (
-        <div>Invalid address</div>
-      )}
-    </div>
-  );
-}
-
-function SubnameInput({
-  error,
-  subname,
-  basename,
-  disabled = false,
-  nameType,
-  setSubname,
-}: {
-  error: string;
-  subname: string;
-  basename: string;
-  disabled?: boolean;
-  nameType?: string; // Assuming 'SubnameType' is defined somewhere
-  setSubname: (value: string) => void;
-}) {
-  // State to track if the input is focused
-  const [isFocused, setIsFocused] = useState(false);
-
-  // Function to handle focus
-  const handleFocus = () => {
-    setIsFocused(true);
-  };
-
-  // Function to handle blur
-  const handleBlur = () => {
-    setIsFocused(false);
-  };
-
-  // //useEffect to prevent the input from being focused immediately
-  // useEffect(() => {
-  //   if (disabled) {
-  //     setIsFocused(false);
-  //   }
-  // }, [disabled]);
-
-  return (
-    <>
-      <div className="flex">
-        <Input
-          id="subname"
-          className=" bg-neutral-750 focus-visible:ring-0 text-white rounded-r-none"
-          value={subname}
-          onChange={(e) => {
-            setSubname(e.target.value);
-          }}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          disabled={nameType === "onchain" || disabled}
-          placeholder="Enter Name"
-        />
-        <div
-          className={`flex text-sm px-2 rounded-l-none items-center bg-neutral-750 rounded-md shadow-sm whitespace-nowrap  ${
-            isFocused ? "text-emerald-400" : "text-neutral-300"
-          }`}
-        >
-          <span className="flex-shrink-0">.{basename}</span>
-        </div>
-      </div>
-      <div className="text-red-500 ml-1 mt-2 font-mono text-xs h-5">
-        {error !== "" && <div>{error}</div>}
-      </div>
-    </>
-  );
 }
 
 function GetApiKeyMessage({

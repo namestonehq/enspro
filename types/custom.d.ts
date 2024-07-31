@@ -17,6 +17,8 @@ declare global {
       "com.twitter": string;
       "com.github": string;
       "com.discord": string;
+      "org.telegram": string;
+      email: string;
       url: string;
     };
     coin_types: {
@@ -24,6 +26,7 @@ declare global {
       "501": string;
       "2147483658": string;
     };
+    contenthash: string;
   };
 
   type DomainInfo = {

@@ -74,7 +74,6 @@ export default async function handler(
           coin_types: item.coin_types,
         }))
       );
-      console.log("Combined Subnames:", combinedSubnames);
     }
 
     res.status(200).json(combinedSubnames);
