@@ -632,7 +632,7 @@ export default function SubnameModal({
               Edit onchain names at{" "}
               <Link
                 target="_blank"
-                href={`https://app.ens.domains/${name.name}`}
+                href={`https://app.ens.domains/${name?.name}`}
               >
                 <span className=" text-emerald-400 transition-colors duration-300 hover:text-emerald-500 underline">
                   ens.domains
