@@ -517,7 +517,7 @@ export default function SubnameModal({
                   </div>
                   <div className="mb-2">
                     <Label htmlFor="address" className="text-right text-white">
-                      Solona
+                      Solana
                     </Label>
                   </div>
                   <div className="relative  mb-4">

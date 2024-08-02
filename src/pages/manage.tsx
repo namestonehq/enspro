@@ -324,30 +324,55 @@ function SubnameCard({
       >
         <div className="flex flex-col">
           <div className="text-sm  ">
-            <span
-              className={` ${
-                name?.nameType === "offchain"
-                  ? "text-emerald-400"
-                  : "text-white/70"
+            <Link
+              href={`https://app.ens.domains/${
+                name?.labelName + "." + basename
               }`}
+              target="_blank"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
             >
-              {name?.labelName || ""}.
-            </span>
-            <span className="text-white">{basename || ""}</span>
+              <span
+                className={` ${
+                  name?.nameType === "offchain"
+                    ? "text-emerald-400"
+                    : "text-white/70"
+                }`}
+              >
+                {name?.labelName || ""}.
+              </span>
+              <span className="text-white">{basename || ""}</span>
+            </Link>
           </div>
 
           <div className="text-xs text-white flex justify-between  font-mono font-thin">
             <div className="flex gap-2 items-start">
-              {name?.resolvedAddress && shortenAddress(name.resolvedAddress)}
+              <Link
+                href={`https://etherscan.io/address/${name.resolvedAddress}`}
+                target="_blank"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                {name?.resolvedAddress && shortenAddress(name.resolvedAddress)}
+              </Link>
             </div>
           </div>
         </div>
 
         {hovering && name?.nameType === "offchain" ? (
-          <Image width={18} height={18} src="/edit-icon.svg" alt="edit name" />
+          <div>
+            <Image
+              width={18}
+              height={18}
+              src="/edit-icon.svg"
+              alt="edit name"
+            />
+          </div>
         ) : (
           <div
-            className={`text-xs flex items-center  rounded-lg px-2 pt-[2px] pb-[2px] ${
+            className={`text-xs flex items-center  rounded-lg px-2 h-5 ${
               name?.nameType === "offchain"
                 ? "bg-emerald-500/15 text-emerald-400"
                 : "bg-neutral-600 text-white/70"
