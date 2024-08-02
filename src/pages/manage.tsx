@@ -344,10 +344,17 @@ function SubnameCard({
         </div>
 
         {hovering && name?.nameType === "offchain" ? (
-          <Image width={18} height={18} src="/edit-icon.svg" alt="edit name" />
+          <div>
+            <Image
+              width={18}
+              height={18}
+              src="/edit-icon.svg"
+              alt="edit name"
+            />
+          </div>
         ) : (
           <div
-            className={`text-xs flex items-center  rounded-lg px-2 pt-[2px] pb-[2px] ${
+            className={`text-xs flex items-center  rounded-lg px-2 h-5 ${
               name?.nameType === "offchain"
                 ? "bg-emerald-500/15 text-emerald-400"
                 : "bg-neutral-600 text-white/70"
