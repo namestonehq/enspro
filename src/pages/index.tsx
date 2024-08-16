@@ -148,7 +148,7 @@ const Home: NextPage = () => {
                   height={40}
                 />
               </div>
-              <div className="text-3xl  text-white font-bold mt-4 mb-2">
+              <div className="text-3xl  text-white font-bold mt-4 mb-2 text-center">
                 Welcome to ENS<span className=" text-emerald-500">Pro</span>
               </div>
               <div className="  text-neutral-300 mb-4">

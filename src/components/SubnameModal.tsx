@@ -591,7 +591,7 @@ export default function SubnameModal({
                     <div className="w-4 h-4 bg-neutral-300 rounded-full" />
                   </div>
                 </div>
-                <div className="h-[33px] px-3 py-[9px] bg-[#333333] rounded-md justify-start items-center gap-3 inline-flex">
+                <div className="h-[33px] px-3 py-[9px] bg-[#333333] rounded-md justify-start items-center gap-3 flex my-4">
                   <div className="text-neutral-400 text-xs font-medium ">
                     {address}
                   </div>
