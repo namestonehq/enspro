@@ -33,6 +33,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { Description } from "@radix-ui/react-dialog";
 import { text } from "stream/consumers";
 import SubnameModal from "../components/SubnameModal";
+import DomainModal from "../components/DomainModal";
 
 const client = createPublicClient({
   batch: { multicall: true },
@@ -163,7 +164,7 @@ export default function Manage() {
                       <span className="mx-1 ">{basename}</span>
                     </div>
                     {hasApiKey && (
-                      <EditDomainModal
+                      <DomainModal
                         basename={basename}
                         trigger={
                           <button className="p-2 px-3  rounded-md transition-colors duration-300 flex hover:rounded-tl-none hover:rounded-bl-none rounded-tl-none  rounded-bl-none hover:rounded-md hover:rounded-tr-md hover:bg-neutral-600 items-center">
@@ -637,7 +638,6 @@ function EditDomainModal({
                 setDomainInfo(tempDomainInfo);
               }}
               className=" bg-neutral-750 text-sm pl-8 focus-visible:ring-1 transition-shadow duration-300  text-neutral-300 placeholder:text-neutral-500 rounded "
-              // disabled={name.nameType === "onchain"}
               placeholder="resolverworks"
             />
           </div>
@@ -661,7 +661,6 @@ function EditDomainModal({
                 setDomainInfo(tempDomainInfo);
               }}
               className=" bg-neutral-750  pl-8 text-sm transition-shadow duration-300  focus-visible:ring-1  text-neutral-300 placeholder:text-neutral-500 rounded"
-              // disabled={name.nameType === "onchain"}
               placeholder="slobo.eth"
             />
           </div>

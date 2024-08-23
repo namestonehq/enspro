@@ -1,7 +1,7 @@
 "use client";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../components/ui/dialog";
+} from "./ui/dialog";
 import { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { isAddress } from "viem";
@@ -33,54 +33,66 @@ const emptyTextRecords = {
   url: "",
 };
 
-const emptyCoinTypes = {
-  "0": "",
-  "501": "",
-  "2147483658": "",
-};
+// const emptyCoinTypes = {
+//   "0": "",
+//   "501": "",
+//   "2147483658": "",
+// };
 
-export default function SubnameModal({
-  name,
+export default function DomainModal({
   basename,
-  refetchSubnames,
-  children,
-  existingSubnames,
-  modalType,
+  trigger,
 }: {
-  name?: Subname;
   basename: string;
-  refetchSubnames: () => void;
-  children: ReactNode;
-  existingSubnames: Subname[];
-  modalType: string;
+  trigger: React.ReactNode;
 }) {
-  const [subname, setSubname] = useState(name?.labelName || "");
-  const [address, setAddress] = useState(name?.resolvedAddress || "");
-  const [textRecords, setTextRecords] = useState(
-    name?.text_records || emptyTextRecords
-  );
-  const [coinTypes, setCoinTypes] = useState(
-    name?.coin_types || emptyCoinTypes
-  );
-  const [contenthash, setContenthash] = useState(name?.contenthash || "");
-  const [l2Addresses, setL2Addresses] = useState(
-    !!name?.coin_types?.["2147483658"] || false
-  ); // checks op only
+  const [address, setAddress] = useState("");
+  const [textRecords, setTextRecords] = useState(emptyTextRecords);
+  const [contenthash, setContenthash] = useState("");
   const [open, setOpen] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [editTab, setEditTab] = useState("subname"); //subname, profile, links, addresses
-  const [subnameError, setSubnameError] = useState("");
 
-  const nameType = name?.nameType || "offchain";
-
+  // useEffect to get domainInfo
   useEffect(() => {
-    setSubname(name?.labelName || "");
-    setAddress(name?.resolvedAddress || "");
-    setTextRecords(name?.text_records || emptyTextRecords);
-    setCoinTypes(name?.coin_types || emptyCoinTypes);
-    setL2Addresses(!!name?.coin_types?.["2147483658"] || false);
-    setContenthash(name?.contenthash || "");
-  }, [name]);
+    fetch(`/api/get-domain?domain=${basename}`).then((response) => {
+      if (response.ok) {
+        response.json().then((data) => {
+          console.log("Domain Info:", data);
+          setAddress(data.address || "");
+          setTextRecords(data.text_records);
+          setContenthash(data.contenthash);
+        });
+      } else {
+        console.error("Failed to fetch domain info");
+      }
+    });
+  }, [basename]);
+
+  function saveDomainInfo() {
+    // Save domainInfo
+    fetch(`/api/edit-domain`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        domain: basename,
+        address: address,
+        text_records: textRecords,
+        contenthash: contenthash,
+      }),
+    }).then((response) => {
+      setOpen(false);
+      if (response.ok) {
+        console.log("Domain info saved successfully");
+        toast.success("Domain info saved successfully");
+      } else {
+        console.error("Failed to save domain info");
+        toast.error("Failed to save domain info");
+      }
+    }); // Handle any network or other errors
+  }
 
   // update textRecords using state
   function updateTextRecords(key: string, value: string) {
@@ -89,88 +101,9 @@ export default function SubnameModal({
     });
   }
 
-  // update coinTypes using state
-  function updateCoinTypes(key: string, value: string) {
-    setCoinTypes((prev) => {
-      return { ...prev, [key]: value };
-    });
-  }
-
-  // use Effect to check if the subname already exists
-  useEffect(() => {
-    if (
-      existingSubnames.find(
-        (existinName) =>
-          existinName.labelName === subname &&
-          existinName.labelName !== name?.labelName
-      )
-    ) {
-      setSubnameError("Subname already exists");
-    } else {
-      setSubnameError("");
-    }
-  }, [subname, existingSubnames]);
-
-  async function changeSubname(method: string) {
-    const originalName = name?.labelName || ""; // The original subname
-    let coinTypesFull = {
-      ...coinTypes,
-      "2147483658": "",
-      "2147483785": "",
-      "2147525809": "",
-      "2147492101": "",
-    } as Record<string, string>;
-    if (l2Addresses) {
-      coinTypesFull = {
-        ...coinTypes,
-        "2147483658": address,
-        "2147483785": address,
-        "2147525809": address,
-        "2147492101": address,
-      };
-    }
-    const body = {
-      domain: basename,
-      name: subname,
-      address: address,
-      method: method,
-      originalName: originalName,
-      coin_types: coinTypesFull,
-      text_records: textRecords,
-      contenthash: contenthash,
-    };
-
-    if (fetching) return;
-    setFetching(true);
-    try {
-      const response = await fetch(`/api/edit-name`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-      console.log({ body, response });
-      if (response.ok) {
-        const data = await response.json();
-        console.log(`Subname method ${method} executed successfully:`, data);
-        toast.success(`Subname ${method} successful`);
-      } else {
-        console.error(`Failed to execute ${method} for subname`);
-        toast.error(`Failed to ${method} subname`);
-      }
-      setFetching(false);
-    } catch (error) {
-      console.error(`Network Error method:${method}`, error);
-      toast.error(`Network Error: Failed to ${method} subname`);
-    }
-    refetchSubnames();
-    setOpen(false);
-  }
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
         className="sm:max-w-[425px]  bg-neutral-800"
         onOpenAutoFocus={(e) => e.preventDefault()}
@@ -178,38 +111,17 @@ export default function SubnameModal({
         {editTab === "subname" ? (
           <>
             <DialogHeader>
-              <DialogTitle className="flex text-white">
-                {nameType === "onchain"
-                  ? "View"
-                  : modalType === "edit"
-                  ? "Edit"
-                  : "Add"}{" "}
-                Subname
-              </DialogTitle>
+              <DialogTitle className="flex text-white">Edit Domain</DialogTitle>
             </DialogHeader>
             <div className="">
-              {nameType === "offchain" && (
-                <div className="mb-2 text-right">
-                  <span
-                    onMouseDown={() => setEditTab("profile")}
-                    className=" text-neutral-300 text-sm  cursor-pointer hover:text-emerald-400"
-                  >
-                    More Records &rsaquo;
-                  </span>
-                </div>
-              )}
-              <div className="mb-2">
-                <Label htmlFor="subname" className="text-right text-white">
-                  Subname
-                </Label>
+              <div className="mb-2 text-right">
+                <span
+                  onMouseDown={() => setEditTab("profile")}
+                  className=" text-neutral-300 text-sm  cursor-pointer hover:text-emerald-400"
+                >
+                  More Records &rsaquo;
+                </span>
               </div>
-              <SubnameInput
-                error={subnameError}
-                setSubname={setSubname}
-                subname={subname}
-                basename={basename}
-                nameType={nameType}
-              />
             </div>
             <div className="">
               <div className="mb-2">
@@ -222,7 +134,7 @@ export default function SubnameModal({
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 className=" bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded text-wrap"
-                disabled={nameType === "onchain"}
+                disabled={false}
                 placeholder="0x123..."
               />
               <AddressCheck address={address} />
@@ -236,7 +148,7 @@ export default function SubnameModal({
                   onMouseDown={() => setEditTab("subname")}
                   className="text-neutral-300 text-sm  cursor-pointer hover:text-emerald-400"
                 >
-                  &lsaquo; {subname}.{basename}
+                  &lsaquo; {basename}
                 </span>
               </div>
               <div className="justify-start items-center gap-5 inline-flex mb-4 mt-4">
@@ -280,7 +192,7 @@ export default function SubnameModal({
                     </div>
                   </div>
                 </div>
-                <div
+                {/* <div
                   onMouseDown={() => setEditTab("addresses")}
                   className={`${
                     editTab === "addresses"
@@ -299,7 +211,7 @@ export default function SubnameModal({
                       Addresses
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
             {editTab === "profile" && (
@@ -488,7 +400,7 @@ export default function SubnameModal({
                 </div>
               </div>
             )}
-            {editTab === "addresses" && (
+            {/* {editTab === "addresses" && (
               <>
                 <div className="">
                   <div className="mb-2">
@@ -596,116 +508,24 @@ export default function SubnameModal({
                   </div>
                 </div>
               </>
-            )}
+            )} */}
           </>
         )}
 
         <DialogFooter>
-          {nameType === "offchain" ? (
-            <div className="flex w-full justify-between flex-row-reverse">
-              <Button
-                className="w-24 float-right"
-                disabled={!isAddress(address, { strict: false })}
-                onMouseDown={() => {
-                  if (modalType === "edit") {
-                    changeSubname("edit");
-                  } else {
-                    changeSubname("set");
-                  }
-                }}
-              >
-                Save
-              </Button>
-              {editTab === "subname" && modalType === "edit" && (
-                <Button
-                  variant="outline"
-                  className=" hover:bg-red-400 border-red-400 border text-red-400 w-24"
-                  onMouseDown={() => changeSubname("delete")}
-                >
-                  Delete
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="w-full  text-neutral-300 text-center -mt-4">
-              Edit onchain names at{" "}
-              <Link
-                target="_blank"
-                href={`https://app.ens.domains/${name?.name}`}
-              >
-                <span className=" text-emerald-400 transition-colors duration-300 hover:text-emerald-500 underline">
-                  ens.domains
-                </span>
-              </Link>
-            </div>
-          )}
+          <div className="flex w-full justify-between flex-row-reverse">
+            <Button
+              className="w-24 float-right"
+              disabled={!isAddress(address, { strict: false })}
+              onMouseDown={() => {
+                saveDomainInfo();
+              }}
+            >
+              Save
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function SubnameInput({
-  error,
-  subname,
-  basename,
-  disabled = false,
-  nameType,
-  setSubname,
-}: {
-  error: string;
-  subname: string;
-  basename: string;
-  disabled?: boolean;
-  nameType?: string; // Assuming 'SubnameType' is defined somewhere
-  setSubname: (value: string) => void;
-}) {
-  // State to track if the input is focused
-  const [isFocused, setIsFocused] = useState(false);
-
-  // Function to handle focus
-  const handleFocus = () => {
-    setIsFocused(true);
-  };
-
-  // Function to handle blur
-  const handleBlur = () => {
-    setIsFocused(false);
-  };
-
-  // //useEffect to prevent the input from being focused immediately
-  // useEffect(() => {
-  //   if (disabled) {
-  //     setIsFocused(false);
-  //   }
-  // }, [disabled]);
-
-  return (
-    <>
-      <div className="flex">
-        <Input
-          id="subname"
-          className=" bg-neutral-750 focus-visible:ring-0 text-white rounded-r-none"
-          value={subname}
-          onChange={(e) => {
-            setSubname(e.target.value);
-          }}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          disabled={nameType === "onchain" || disabled}
-          placeholder="Enter Name"
-        />
-        <div
-          className={`flex text-sm px-2 rounded-l-none items-center bg-neutral-750 rounded-md shadow-sm whitespace-nowrap  ${
-            isFocused ? "text-emerald-400" : "text-neutral-300"
-          }`}
-        >
-          <span className="flex-shrink-0">.{basename}</span>
-        </div>
-      </div>
-      <div className="text-red-500 ml-1 mt-2 font-mono text-xs h-5">
-        {error !== "" && <div>{error}</div>}
-      </div>
-    </>
   );
 }
