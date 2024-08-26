@@ -516,7 +516,7 @@ export default function DomainModal({
           <div className="flex w-full justify-between flex-row-reverse">
             <Button
               className="w-24 float-right"
-              disabled={!isAddress(address, { strict: false })}
+              disabled={false}
               onMouseDown={() => {
                 saveDomainInfo();
               }}
