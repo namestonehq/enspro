@@ -33,11 +33,11 @@ const emptyTextRecords = {
   url: "",
 };
 
-// const emptyCoinTypes = {
-//   "0": "",
-//   "501": "",
-//   "2147483658": "",
-// };
+const emptyCoinTypes = {
+  "0": "",
+  "501": "",
+  "2147483658": "",
+};
 
 export default function DomainModal({
   basename,
@@ -48,6 +48,8 @@ export default function DomainModal({
 }) {
   const [address, setAddress] = useState("");
   const [textRecords, setTextRecords] = useState(emptyTextRecords);
+  const [coinTypes, setCoinTypes] = useState(emptyCoinTypes);
+  const [l2Addresses, setL2Addresses] = useState(false); // checks op only
   const [contenthash, setContenthash] = useState("");
   const [open, setOpen] = useState(false);
   const [fetching, setFetching] = useState(false);
@@ -62,6 +64,8 @@ export default function DomainModal({
           setAddress(data.address || "");
           setTextRecords(data.text_records);
           setContenthash(data.contenthash);
+          setCoinTypes(data.coin_types);
+          setL2Addresses(!!data.coin_types?.["2147483658"] || false); //checks op only
         });
       } else {
         console.error("Failed to fetch domain info");
@@ -70,6 +74,22 @@ export default function DomainModal({
   }, [basename]);
 
   function saveDomainInfo() {
+    let coinTypesFull = {
+      ...coinTypes,
+      "2147483658": "",
+      "2147483785": "",
+      "2147525809": "",
+      "2147492101": "",
+    } as Record<string, string>;
+    if (l2Addresses) {
+      coinTypesFull = {
+        ...coinTypes,
+        "2147483658": address,
+        "2147483785": address,
+        "2147525809": address,
+        "2147492101": address,
+      };
+    }
     // Save domainInfo
     fetch(`/api/edit-domain`, {
       method: "POST",
@@ -80,6 +100,7 @@ export default function DomainModal({
         domain: basename,
         address: address,
         text_records: textRecords,
+        coin_types: coinTypesFull,
         contenthash: contenthash,
       }),
     }).then((response) => {
@@ -97,6 +118,12 @@ export default function DomainModal({
   // update textRecords using state
   function updateTextRecords(key: string, value: string) {
     setTextRecords((prev) => {
+      return { ...prev, [key]: value };
+    });
+  }
+  // update coinTypes using state
+  function updateCoinTypes(key: string, value: string) {
+    setCoinTypes((prev) => {
       return { ...prev, [key]: value };
     });
   }
@@ -192,7 +219,7 @@ export default function DomainModal({
                     </div>
                   </div>
                 </div>
-                {/* <div
+                <div
                   onMouseDown={() => setEditTab("addresses")}
                   className={`${
                     editTab === "addresses"
@@ -211,7 +238,7 @@ export default function DomainModal({
                       Addresses
                     </div>
                   </div>
-                </div> */}
+                </div>
               </div>
             </div>
             {editTab === "profile" && (
@@ -400,7 +427,7 @@ export default function DomainModal({
                 </div>
               </div>
             )}
-            {/* {editTab === "addresses" && (
+            {editTab === "addresses" && (
               <>
                 <div className="">
                   <div className="mb-2">
@@ -508,7 +535,7 @@ export default function DomainModal({
                   </div>
                 </div>
               </>
-            )} */}
+            )}
           </>
         )}
 
