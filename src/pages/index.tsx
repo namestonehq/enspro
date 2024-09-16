@@ -77,7 +77,7 @@ const Home: NextPage = () => {
   }, [searchText, names]);
 
   return (
-    <div className="bg-grid bg-neutral-900 -z-20">
+    <div className="bg-grid bg-fixed bg-neutral-900 -z-20">
       {/* Toaster */}
       {/* Nav Bar */}
       <NavBar />
