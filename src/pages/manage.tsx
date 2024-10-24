@@ -5,7 +5,6 @@ import { Label } from "../components/ui/label";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -23,17 +22,21 @@ import { EnableModal } from "../components/EnableModal";
 import { ApiKeyModal } from "../components/ApiKeyModal";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
-import { isAddress } from "viem";
 import AddressCheck from "../components/AddressCheck";
 import Footer from "../components/Footer";
 import Image from "next/image";
 import Link from "next/link";
 import _ from "lodash";
 import toast, { Toaster } from "react-hot-toast";
-import { Description } from "@radix-ui/react-dialog";
-import { text } from "stream/consumers";
 import SubnameModal from "../components/SubnameModal";
 import DomainModal from "../components/DomainModal";
+
+import { createWalletClient, custom } from "viem";
+
+const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+});
 
 const client = createPublicClient({
   batch: { multicall: true },
@@ -132,6 +135,55 @@ export default function Manage() {
     fetchSubnames();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [basename, isEnable, refetch]); // Dependency array includes `name`
+
+  const handleSign = async () => {
+    try {
+      // Step 1: Get the SIWE message from the backend
+      const response = await fetch("/api/get-siwe-message");
+      if (!response.ok) {
+        throw new Error("Failed to get SIWE message");
+      }
+
+      const { message } = await response.json();
+
+      // Step 2: Ensure the account is defined
+      if (!account || !account.address) {
+        throw new Error("Account is not defined or does not have an address.");
+      }
+
+      // Step 3: Sign the retrieved SIWE message
+      const sig = await walletClient.signMessage({
+        account: account.address, // The user's Ethereum address
+        message: message, // Use the SIWE message here
+      });
+
+      console.log("Signature:", sig);
+
+      // Step 4: Enable the domain using the signed message
+      const enableResponse = await fetch("/api/enable-domain", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          domain: basename,
+          signature: sig,
+        }),
+      });
+
+      if (!enableResponse.ok) {
+        const errorData = await enableResponse.json();
+        throw new Error(
+          `Failed to enable domain: ${errorData.error || "Unknown error"}`
+        );
+      }
+
+      const apiKeyData = await enableResponse.json();
+      console.log("API Key:", apiKeyData.message);
+    } catch (error) {
+      console.error("Error during enabling domain:", error);
+    }
+  };
 
   return (
     <div className="bg-grid bg-neutral-900 -z-20">
@@ -264,6 +316,24 @@ export default function Manage() {
                     fetchSubnames={fetchSubnames}
                   />
                 )}
+                {/* Get Signature */}
+                <div className="flex mb-4 text-neutral-300 text-sm rounded-lg p-3 items-center justify-between w-full h-14 bg-neutral-700">
+                  <div className="flex items-center gap-2">
+                    <ExclamationTriangleIcon
+                      className=" text-amber-300"
+                      width={16}
+                      height={16}
+                    />
+                    Sign the message to prove name ownership.
+                  </div>
+                  <Button
+                    variant="outline"
+                    className=" border-green-500 hover:bg-emerald-500"
+                    onClick={handleSign}
+                  >
+                    Sign
+                  </Button>
+                </div>
                 <div>
                   {subnames.length === 0 && hasApiKey ? (
                     <div className="text-neutral-300 text-center flex-col flex mt-4">
