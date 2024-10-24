@@ -20,7 +20,7 @@ import { addEnsContracts, ensSubgraphActions } from "@ensdomains/ensjs";
 import { ExclamationTriangleIcon, ArrowLeftIcon } from "@radix-ui/react-icons";
 import { EnableModal } from "../components/EnableModal";
 import { ApiKeyModal } from "../components/ApiKeyModal";
-import { useAccount } from "wagmi";
+import { useAccount, useWalletClient } from "wagmi";
 import { useRouter } from "next/navigation";
 import AddressCheck from "../components/AddressCheck";
 import Footer from "../components/Footer";
@@ -30,13 +30,6 @@ import _ from "lodash";
 import toast, { Toaster } from "react-hot-toast";
 import SubnameModal from "../components/SubnameModal";
 import DomainModal from "../components/DomainModal";
-
-import { createWalletClient, custom } from "viem";
-
-const walletClient = createWalletClient({
-  chain: mainnet,
-  transport: custom(window.ethereum!),
-});
 
 const client = createPublicClient({
   batch: { multicall: true },
@@ -63,6 +56,8 @@ export default function Manage() {
   const [refetch, setRefetch] = useState(0);
   const account = useAccount();
   const router = useRouter();
+
+  const { data: walletClient } = useWalletClient();
 
   //UseEffect to return to main page if not connected
   useEffect(() => {

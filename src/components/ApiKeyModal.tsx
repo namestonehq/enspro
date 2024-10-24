@@ -5,15 +5,7 @@ import { useRouter } from "next/navigation";
 
 // *** Wagmi/viem ***
 import { useAccount } from "wagmi";
-import {
-  http,
-  createClient,
-  createPublicClient,
-  Address,
-  createWalletClient,
-  custom,
-  Hex,
-} from "viem";
+import { http, createClient, Address } from "viem";
 import { mainnet } from "viem/chains";
 
 // *** ENS ***

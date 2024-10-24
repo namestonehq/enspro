@@ -24,9 +24,12 @@ export default async function handler(
       .json({ error: "Ethereum address not found in token" });
   }
 
+  const domain = req.headers.host || "localhost:3000";
+  const uri = `https://${domain}/api/get-siwe-message?address=${address}`;
+  console.log(domain);
   try {
     const response = await fetch(
-      `https://namestone.xyz/api/public_v1/get-siwe-message?address=${address}`,
+      `https://namestone-staging-43aq.onrender.com/api/public_v1/get-siwe-message?address=${address}&domain=${domain}&uri=${uri}`,
       {
         method: "GET",
         headers: {
