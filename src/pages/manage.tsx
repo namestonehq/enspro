@@ -147,6 +147,10 @@ export default function Manage() {
       }
 
       // Step 3: Sign the retrieved SIWE message
+      if (!walletClient) {
+        return "wallet client not found";
+      }
+
       const sig = await walletClient.signMessage({
         account: account.address, // The user's Ethereum address
         message: message, // Use the SIWE message here
