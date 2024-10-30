@@ -33,7 +33,7 @@ import {
 } from "./ui/dialog";
 import { getOnchainDomainInfo } from "../lib/utils";
 // *** Constants ***
-const HYBRID_RESOLVER = "0xd17347fA0a6eeC89a226c96a9ae354F785e94241";
+const HYBRID_RESOLVER = "0xa87361c4e58b619c390f469b9e6f27d759715125";
 
 const client = createClient({
   chain: {

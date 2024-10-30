@@ -22,6 +22,7 @@ const goodResolvers = [
   "0x7CE6Cf740075B5AF6b1681d67136B84431B43AbD",
   "0xd17347fA0a6eeC89a226c96a9ae354F785e94241",
   "0x2291053F49Cd008306b92f84a61c6a1bC9B5CB65",
+  "0xa87361c4e58b619c390f469b9e6f27d759715125", // most current
 ];
 
 export default async function handler(
