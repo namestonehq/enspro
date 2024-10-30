@@ -33,7 +33,7 @@ import {
 } from "./ui/dialog";
 import { getOnchainDomainInfo } from "../lib/utils";
 // *** Constants ***
-const HYBRID_RESOLVER = "0xa87361c4e58b619c390f469b9e6f27d759715125";
+const HYBRID_RESOLVER = "0xA87361C4E58B619c390f469B9E6F27d759715125";
 
 const client = createClient({
   chain: {
@@ -104,7 +104,7 @@ export function EnableModal({
             Update your resolver to enable ENSPro. We use a{" "}
             <Link
               className="underline text-emerald-400"
-              href="https://etherscan.io/address/0x7CE6Cf740075B5AF6b1681d67136B84431B43AbD"
+              href="https://etherscan.io/address/0xA87361C4E58B619c390f469B9E6F27d759715125"
               target="_blank"
             >
               verified resolver
