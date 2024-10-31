@@ -33,7 +33,7 @@ import {
 } from "./ui/dialog";
 import { getOnchainDomainInfo } from "../lib/utils";
 // *** Constants ***
-const HYBRID_RESOLVER = "0xd17347fA0a6eeC89a226c96a9ae354F785e94241";
+const HYBRID_RESOLVER = "0xA87361C4E58B619c390f469B9E6F27d759715125";
 
 const client = createClient({
   chain: {
@@ -104,7 +104,7 @@ export function EnableModal({
             Update your resolver to enable ENSPro. We use a{" "}
             <Link
               className="underline text-emerald-400"
-              href="https://etherscan.io/address/0x7CE6Cf740075B5AF6b1681d67136B84431B43AbD"
+              href="https://etherscan.io/address/0xA87361C4E58B619c390f469B9E6F27d759715125"
               target="_blank"
             >
               verified resolver
@@ -214,32 +214,6 @@ function EnableButton({
             setButtonText("Success");
             console.error(error);
           }
-          fetch(`/api/get-api-key?domain=${domain}`).then((response) => {
-            if (response.ok) {
-              console.log("API key fetched successfully");
-              // set domain to domainInfo on namestone
-              // Save domainInfo
-              fetch(`/api/edit-domain`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  ...domainInfo,
-                }),
-              }).then((response) => {
-                if (response.ok) {
-                  console.log("Domain info saved successfully");
-                } else {
-                  console.error("Failed to save domain info");
-                }
-              });
-              refetchSubnames();
-              toast.success("Resolver changed successfully");
-            } else {
-              console.error("Failed to fetch API key");
-            }
-          });
         } catch (error) {
           // tx error
           setTxStatus("error");

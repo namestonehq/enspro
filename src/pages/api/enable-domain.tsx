@@ -27,16 +27,35 @@ async function enableDomain(
   );
 
   if (!response.ok) {
-    const errorData = await response.json();
+    let errorData;
+    try {
+      errorData = await response.json();
+    } catch {
+      errorData = { error: "Unknown error occurred" };
+    }
     throw new Error(
       `Failed to enable domain: ${errorData.error || response.statusText}`
     );
   }
 
+  // Parse JSON once and store it
   const data = await response.json();
+
+  try {
+    // Insert into database only once with parsed data
+    await sql`
+      insert into "ApiKey" (
+       domain, api_key, address
+      ) values (
+        ${domain}, ${data.api_key}, ${address}
+      )`;
+    console.log("APIkey added to the database");
+  } catch (error) {
+    console.error("Database error:", error);
+  }
+
   return data;
 }
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -54,7 +73,7 @@ export default async function handler(
   const { domain, signature } = req.body;
   const address = token.sub as string;
   const companyName = "enspro";
-  const email = "alex+enspro@namestone.xyz";
+  const email = "alexo@namestone.xyz";
 
   if (!domain || !signature) {
     return res.status(400).json({ error: "Domain and signature are required" });
@@ -71,20 +90,8 @@ export default async function handler(
   }
 
   try {
-    // Step 1: Enable the domain with the signed message
+    // Enable the domain with the signed message
     console.log("Enabling domain...");
-    console.log(
-      "Domain:",
-      domain,
-      "Address:",
-      address,
-      "Company Name:",
-      companyName,
-      "Email:",
-      email,
-      "Signature:",
-      signature
-    );
     const data = await enableDomain(
       domain,
       address,
@@ -93,14 +100,6 @@ export default async function handler(
       signature
     );
     console.log(data);
-
-    // Step 2: Store the new API key
-    await sql`
-        insert into "ApiKey" (
-         domain, api_key, address
-        ) values (
-          ${domain}, ${data.api_key}, ${address}
-        )`;
 
     return res.status(200).json({ message: "API key added" });
   } catch (error: any) {
