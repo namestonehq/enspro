@@ -49,7 +49,6 @@ async function enableDomain(
       ) values (
         ${domain}, ${data.api_key}, ${address}
       )`;
-    console.log("API Key:", data.api_key);
     console.log("APIkey added to the database");
   } catch (error) {
     console.error("Database error:", error);
@@ -74,7 +73,7 @@ export default async function handler(
   const { domain, signature } = req.body;
   const address = token.sub as string;
   const companyName = "enspro";
-  const email = "alex+enspro@namestone.xyz";
+  const email = "alexo@namestone.xyz";
 
   if (!domain || !signature) {
     return res.status(400).json({ error: "Domain and signature are required" });
