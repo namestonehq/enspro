@@ -68,8 +68,11 @@ export default function NameTable({
     onSelectName(name);
   };
   const currentTimestamp = Math.floor(Date.now());
+  console.log(names);
   const filteredNames = names.filter(
-    (name) => name.expiryDate && name.expiryDate.value >= currentTimestamp
+    (name) =>
+      !name.expiryDate ||
+      (name.expiryDate && name.expiryDate.value >= currentTimestamp)
   );
   const displayedNames = useMemo(() => {
     // First, sort the names by status, true first

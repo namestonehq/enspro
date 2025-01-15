@@ -9,7 +9,6 @@ import Footer from "../components/Footer";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Input } from "../components/ui/input";
@@ -94,12 +93,11 @@ const Home: NextPage = () => {
                 {names.length > 0 && (
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <Image
-                        src="icon-search.svg"
-                        alt="url"
+                      <img
+                        src="/icon-search.svg"
+                        alt="Search icon"
                         width={12}
                         height={12}
-                        className=""
                       />
                     </div>
                     <Input
@@ -114,15 +112,16 @@ const Home: NextPage = () => {
               </div>
               {
                 loading ? (
-                  <div className="flex flex-col  justify-center items-center flex-1">
-                    <Image
-                      src="/loading-spinner.svg"
-                      alt="spinner"
-                      className="mr-2 text-white"
-                      width={32}
-                      height={32}
-                    />
-                    <div className=" text-neutral-300 mt-4">
+                  <div className="flex flex-col justify-center items-center flex-1">
+                    <div className="mr-2">
+                      <img
+                        src="/loading-spinner.svg"
+                        alt="Loading spinner"
+                        width={32}
+                        height={32}
+                      />
+                    </div>
+                    <div className="text-neutral-300 mt-4">
                       Loading names...
                     </div>
                   </div>
@@ -140,10 +139,9 @@ const Home: NextPage = () => {
           ) : (
             <div className="flex mt-8 items-center justify-center shadow-lg  bg-neutral-800 w-full max-w-[800px] min-h-[480px] p-8 flex-col rounded mx-auto">
               <div>
-                {" "}
-                <Image
+                <img
                   src="/enspro-icon.svg"
-                  alt="Logo"
+                  alt="ENSPro Logo"
                   width={40}
                   height={40}
                 />
@@ -168,7 +166,7 @@ const Home: NextPage = () => {
 function NoNamesFound() {
   return (
     <div className="flex gap-1 flex-col items-center text-neutral-300 flex-1 justify-center">
-      <Image src="/crying-face.svg" alt="Logo" width={60} height={60} />
+      <img src="/crying-face.svg" alt="Crying face" width={60} height={60} />
       <span className="text-white">No ENS names owned </span>{" "}
       <span>
         Connect another wallet or get a name at
