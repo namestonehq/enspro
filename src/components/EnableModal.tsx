@@ -208,10 +208,12 @@ function EnableButton({
             });
             setTxStatus("success");
             setButtonText("Success");
+            setShowSpinner(false);
           } catch (error) {
             // wait for txReciept is known to fail we display success anyhow
             setTxStatus("success");
             setButtonText("Success");
+            setShowSpinner(false);
             console.error(error);
           }
         } catch (error) {
