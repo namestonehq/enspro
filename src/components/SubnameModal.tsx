@@ -31,6 +31,8 @@ const emptyTextRecords = {
   "org.telegram": "",
   email: "",
   url: "",
+  status: "",
+  banner: "",
 };
 
 const emptyCoinTypes = {
@@ -317,6 +319,18 @@ export default function SubnameModal({
                   placeholder="URL (https://)"
                 />
                 <div className="mb-2">
+                  <Label htmlFor="banner" className="text-right text-white">
+                    Banner
+                  </Label>
+                </div>
+                <Input
+                  id="banner"
+                  value={textRecords?.["banner"] || ""}
+                  onChange={(e) => updateTextRecords("banner", e.target.value)}
+                  className=" bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded mb-5"
+                  placeholder="URL (https://)"
+                />
+                <div className="mb-2">
                   <Label
                     htmlFor="description"
                     className="text-right text-white"
@@ -331,7 +345,19 @@ export default function SubnameModal({
                     updateTextRecords("description", e.target.value)
                   }
                   className=" bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded  mb-5"
-                  placeholder="I’m a web3 developer"
+                  placeholder="I'm a web3 developer"
+                />
+                <div className="mb-2">
+                  <Label htmlFor="status" className="text-right text-white">
+                    Status
+                  </Label>
+                </div>
+                <Input
+                  id="status"
+                  value={textRecords?.status || ""}
+                  onChange={(e) => updateTextRecords("status", e.target.value)}
+                  className=" bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded  mb-5"
+                  placeholder="Heading to the moon"
                 />
                 <div className="mb-2">
                   <Label htmlFor="location" className="text-right text-white">

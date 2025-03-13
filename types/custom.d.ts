@@ -20,6 +20,8 @@ declare global {
       "org.telegram": string;
       email: string;
       url: string;
+      status: string;
+      banner: string;
     };
     coin_types: {
       "0": string;
@@ -40,6 +42,8 @@ declare global {
       "com.github": string;
       "com.discord": string;
       url: string;
+      status: string;
+      banner: string;
     };
   };
 }
