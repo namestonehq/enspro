@@ -32,7 +32,7 @@ const emptyTextRecords = {
   email: "",
   url: "",
   status: "",
-  banner: "",
+  header: "",
 };
 
 const emptyCoinTypes = {
@@ -319,14 +319,14 @@ export default function SubnameModal({
                   placeholder="URL (https://)"
                 />
                 <div className="mb-2">
-                  <Label htmlFor="banner" className="text-right text-white">
-                    Banner
+                  <Label htmlFor="header" className="text-right text-white">
+                    Header
                   </Label>
                 </div>
                 <Input
-                  id="banner"
-                  value={textRecords?.["banner"] || ""}
-                  onChange={(e) => updateTextRecords("banner", e.target.value)}
+                  id="header"
+                  value={textRecords?.["header"] || ""}
+                  onChange={(e) => updateTextRecords("header", e.target.value)}
                   className=" bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded mb-5"
                   placeholder="URL (https://)"
                 />

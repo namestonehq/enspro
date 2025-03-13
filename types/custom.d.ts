@@ -21,7 +21,7 @@ declare global {
       email: string;
       url: string;
       status: string;
-      banner: string;
+      header: string;
     };
     coin_types: {
       "0": string;
@@ -43,7 +43,7 @@ declare global {
       "com.discord": string;
       url: string;
       status: string;
-      banner: string;
+      header: string;
     };
   };
 }
