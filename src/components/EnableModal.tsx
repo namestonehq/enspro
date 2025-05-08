@@ -32,6 +32,7 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { getOnchainDomainInfo } from "../lib/utils";
+import { saveDomainInfoTemporarily } from "../lib/domainStorage";
 // *** Constants ***
 const HYBRID_RESOLVER = "0xA87361C4E58B619c390f469B9E6F27d759715125";
 
@@ -198,6 +199,9 @@ function EnableButton({
           setShowSpinner(true);
           const domainInfo = await getOnchainDomainInfo(domain);
           console.log(domainInfo);
+          // Save domain info temporarily until API key is obtained
+          saveDomainInfoTemporarily(domain, domainInfo);
+          
           const hash = await setResolver(wallet, {
             name: domain,
             contract: isNamewrapper ? "nameWrapper" : "registry",

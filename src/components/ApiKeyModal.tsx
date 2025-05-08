@@ -12,6 +12,7 @@ import { mainnet } from "viem/chains";
 import { batch, getResolver, getOwner } from "@ensdomains/ensjs/public";
 import { addEnsContracts } from "@ensdomains/ensjs";
 import { setResolver } from "@ensdomains/ensjs/wallet";
+import { updateDomainWithSavedInfo, getSavedDomainInfo } from "../lib/domainStorage";
 
 // *** UI Components ***
 import { Button } from "./ui/button";
@@ -139,14 +140,33 @@ function EnableButton({
   const router = useRouter();
   async function handleClick() {
     setShowSpinner(true);
-    fetch(
+    
+    // First add the API key
+    const response = await fetch(
       `/api/add-api-key?api_key=${apiKey}&address=${account}&domain=${domain}`
-    ).then((response) => {
-      if (response.ok) {
-        window.location.reload();
+    );
+    
+    if (response.ok) {
+      // Check if we have saved domain info that needs to be applied
+      const savedInfo = getSavedDomainInfo(domain);
+      
+      if (savedInfo) {
+        // Use the saved domain info to update the records
+        console.log("Found saved domain info, updating records...");
+        const updateSuccess = await updateDomainWithSavedInfo(domain);
+        
+        if (updateSuccess) {
+          console.log("Successfully updated domain with saved info");
+        } else {
+          console.error("Failed to update domain with saved info");
+        }
       }
-      setShowSpinner(false);
-    });
+      
+      // Reload page regardless of update success to show new state
+      window.location.reload();
+    }
+    
+    setShowSpinner(false);
   }
 
   return (
