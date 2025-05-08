@@ -214,13 +214,14 @@ function EnableButton({
             setTxStatus("success");
             setButtonText("Success");
             setShowSpinner(false);
+            setIsEnable(true);
+            refetchSubnames();
           } catch (error) {
             // wait for txReciept is known to fail we display success anyhow
             setTxStatus("success");
             setButtonText("Success");
             setShowSpinner(false);
             console.error(error);
-            setIsEnable(true);
           }
         } catch (error) {
           // tx error
