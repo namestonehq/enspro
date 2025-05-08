@@ -47,11 +47,24 @@ export default function Manage() {
   const { data: walletClient } = useWalletClient();
 
   //UseEffect to return to main page if not connected
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  
   useEffect(() => {
-    if (!account.address) {
+    // Set a flag after initial load to avoid redirect during page refresh
+    if (!initialLoadComplete) {
+      // Wait a moment to allow wallet reconnection
+      const timer = setTimeout(() => {
+        setInitialLoadComplete(true);
+      }, 1500);
+      
+      return () => clearTimeout(timer);
+    }
+    
+    // Only redirect if we're sure the user is disconnected after initial load
+    if (initialLoadComplete && !account.address) {
       router.push("/");
     }
-  }, [account.address, router]);
+  }, [account.address, router, initialLoadComplete]);
 
   useEffect(() => {
     if (searchParams.get("name")) {
@@ -162,7 +175,10 @@ export default function Manage() {
       }
 
       const apiKeyData = await enableResponse.json();
-      router.refresh();
+      // set enable to true
+      setIsEnable(true);
+      // refetch the subnames
+      refetchSubnames();
     } catch (error) {
       console.error("Error during enabling domain:", error);
     }
@@ -275,6 +291,7 @@ export default function Manage() {
                     <EnableModal
                       basename={basename}
                       refetchSubnames={refetchSubnames}
+                      setIsEnable={setIsEnable}
                       trigger={
                         <Button
                           variant="outline"

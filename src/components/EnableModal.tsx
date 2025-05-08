@@ -57,10 +57,12 @@ export function EnableModal({
   basename,
   refetchSubnames,
   trigger,
+  setIsEnable,
 }: {
   basename: string;
   refetchSubnames: () => void;
   trigger: React.ReactNode;
+  setIsEnable: (isEnable: boolean) => void;
 }) {
   const [buttonText, setButtonText] = useState("Update");
   const [isOpen, setIsOpen] = useState(false);
@@ -140,6 +142,7 @@ export function EnableModal({
               isNamewrapper={isNameWrapper}
               setTxStatus={setTxStatus}
               setTxHash={setTxHash}
+              setIsEnable={setIsEnable}
             />
           </div>
         </DialogFooter>
@@ -159,6 +162,7 @@ function EnableButton({
   isNamewrapper,
   setTxStatus,
   setTxHash,
+  setIsEnable,
 }: {
   domain: string;
   refetchSubnames: () => void;
@@ -170,6 +174,7 @@ function EnableButton({
   isNamewrapper: boolean;
   setTxStatus: (text: string) => void;
   setTxHash: (hash: string) => void;
+  setIsEnable: (isEnable: boolean) => void;
 }) {
   const [showSpinner, setShowSpinner] = useState(false);
   const router = useRouter();
@@ -215,6 +220,7 @@ function EnableButton({
             setButtonText("Success");
             setShowSpinner(false);
             console.error(error);
+            setIsEnable(true);
           }
         } catch (error) {
           // tx error
@@ -222,6 +228,8 @@ function EnableButton({
           setButtonText("Update");
           setShowSpinner(false);
           console.error(error);
+        } finally {
+          // add domainInfo
         }
       }
     } else {
