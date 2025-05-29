@@ -37,11 +37,15 @@ async function enableDomain(
       `Failed to enable domain: ${errorData.error || response.statusText}`
     );
   }
-
   // Parse JSON once and store it
   const data = await response.json();
 
   try {
+    // delete the api key on the domain if it exists
+    await sql`
+      delete from "ApiKey" where domain = ${domain} and address = ${address}
+    `;
+
     // Insert into database only once with parsed data
     await sql`
       insert into "ApiKey" (
@@ -78,20 +82,8 @@ export default async function handler(
   if (!domain || !signature) {
     return res.status(400).json({ error: "Domain and signature are required" });
   }
-
-  // Check if we already have an API key
-  const apiKeyQuery = await sql`
-      select api_key from "ApiKey" where
-      address = ${address} and domain = ${domain}
-      order by "createdAt" desc
-    `;
-  if (apiKeyQuery.length !== 0) {
-    return res.status(200).json({ message: "API key Exists" });
-  }
-
   try {
     // Enable the domain with the signed message
-    console.log("Enabling domain...");
     const data = await enableDomain(
       domain,
       address,

@@ -22,7 +22,6 @@ export const ConnectButton = () => {
     address,
   });
 
-  console.log("chain:", chain);
   const buttonWidth = "w-36";
 
   const isMounted = useRef(false);

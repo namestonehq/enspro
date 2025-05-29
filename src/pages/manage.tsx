@@ -48,7 +48,7 @@ export default function Manage() {
 
   //UseEffect to return to main page if not connected
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
-  
+
   useEffect(() => {
     // Set a flag after initial load to avoid redirect during page refresh
     if (!initialLoadComplete) {
@@ -56,10 +56,10 @@ export default function Manage() {
       const timer = setTimeout(() => {
         setInitialLoadComplete(true);
       }, 1500);
-      
+
       return () => clearTimeout(timer);
     }
-    
+
     // Only redirect if we're sure the user is disconnected after initial load
     if (initialLoadComplete && !account.address) {
       router.push("/");
@@ -152,8 +152,6 @@ export default function Manage() {
         account: account.address, // The user's Ethereum address
         message: message, // Use the SIWE message here
       });
-
-      console.log("Signature:", sig);
 
       // Step 4: Enable the domain using the signed message
       const enableResponse = await fetch("/api/enable-domain", {

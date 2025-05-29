@@ -43,7 +43,6 @@ export default async function handler(
     address = ${address} and domain = ${name}
     order by "createdAt" desc
   `;
-  console.log("API Key Query:", apiKeyQuery);
 
   if (apiKeyQuery.length === 0) {
     res.status(400).json({ error: "API key not found" });
@@ -100,8 +99,6 @@ async function fetchOffchainSubnames(domain: string, apiKey: string) {
       const data = await response.json();
       return data;
     } else {
-      console.log("Response Status:", response.status);
-
       if (response.status === 400) {
         console.log("Received a 400 error, returning empty object.");
         return {};

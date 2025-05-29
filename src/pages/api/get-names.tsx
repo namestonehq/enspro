@@ -53,7 +53,6 @@ export default async function handler(
   }
 
   try {
-    console.log(client.chain.subgraphs.ens.url);
     const result = await client.getNamesForAddress({
       address: address,
       pageSize: 1000,
@@ -62,7 +61,6 @@ export default async function handler(
     const filteredResult: NameWithRelation[] = result.filter(
       (item: NameWithRelation) => item.name
     );
-
     const displayedData = await batch(
       client,
       ...filteredResult.map((item) =>

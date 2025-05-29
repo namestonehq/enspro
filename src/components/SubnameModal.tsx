@@ -35,10 +35,13 @@ const emptyTextRecords = {
   header: "",
 };
 
-const emptyCoinTypes = {
+const emptyCoinTypes: Record<string, string> = {
   "0": "",
   "501": "",
-  "2147483658": "",
+  "2147483658": "", // Optimism
+  "2147483785": "", // Polygon
+  "2147525809": "", // Base
+  "2147492101": "", // Arbitrum
 };
 
 export default function SubnameModal({
@@ -61,13 +64,10 @@ export default function SubnameModal({
   const [textRecords, setTextRecords] = useState(
     name?.text_records || emptyTextRecords
   );
-  const [coinTypes, setCoinTypes] = useState(
+  const [coinTypes, setCoinTypes] = useState<Record<string, string>>(
     name?.coin_types || emptyCoinTypes
   );
   const [contenthash, setContenthash] = useState(name?.contenthash || "");
-  const [l2Addresses, setL2Addresses] = useState(
-    !!name?.coin_types?.["2147483658"] || false
-  ); // checks op only
   const [open, setOpen] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [editTab, setEditTab] = useState("subname"); //subname, profile, links, addresses
@@ -80,7 +80,6 @@ export default function SubnameModal({
     setAddress(name?.resolvedAddress || "");
     setTextRecords(name?.text_records || emptyTextRecords);
     setCoinTypes(name?.coin_types || emptyCoinTypes);
-    setL2Addresses(!!name?.coin_types?.["2147483658"] || false);
     setContenthash(name?.contenthash || "");
   }, [name]);
 
@@ -115,29 +114,13 @@ export default function SubnameModal({
 
   async function changeSubname(method: string) {
     const originalName = name?.labelName || ""; // The original subname
-    let coinTypesFull = {
-      ...coinTypes,
-      "2147483658": "",
-      "2147483785": "",
-      "2147525809": "",
-      "2147492101": "",
-    } as Record<string, string>;
-    if (l2Addresses) {
-      coinTypesFull = {
-        ...coinTypes,
-        "2147483658": address,
-        "2147483785": address,
-        "2147525809": address,
-        "2147492101": address,
-      };
-    }
     const body = {
       domain: basename,
       name: subname,
       address: address,
       method: method,
       originalName: originalName,
-      coin_types: coinTypesFull,
+      coin_types: coinTypes,
       text_records: textRecords,
       contenthash: contenthash,
     };
@@ -515,7 +498,7 @@ export default function SubnameModal({
               </div>
             )}
             {editTab === "addresses" && (
-              <>
+              <div style={{ maxHeight: "380px", overflowY: "auto" }}>
                 <div className="">
                   <div className="mb-2">
                     <Label htmlFor="address" className="text-right text-white">
@@ -563,65 +546,113 @@ export default function SubnameModal({
                       placeholder="solana"
                     />
                   </div>
-                </div>
-                <hr className=" border-neutral-750" />
-
-                <div className="justify-between items-center flex">
-                  <div className="flex-col justify-center items-start gap-2 inline-flex">
-                    <div className="text-white text-sm font-bold ">
-                      Add L2 Address Support
-                    </div>
-                    <div className="text-neutral-300 text-sm font-medium">
-                      Add and match ETH address
-                    </div>
-                    <div className="justify-start items-center gap-3 inline-flex">
+                  {/* Optimism */}
+                  <div className="mb-2">
+                    <Label htmlFor="address" className="text-right text-white">
+                      Optimism
+                    </Label>
+                  </div>
+                  <div className="relative mb-4">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                       <Image
                         src="/chains/icon-op.png"
-                        alt="op"
-                        width={18}
-                        height={18}
-                        className=""
-                      />
-                      <Image
-                        src="/chains/icon-polygon.png"
-                        alt="op"
-                        width={18}
-                        height={18}
-                        className=""
-                      />
-                      <Image
-                        src="/chains/icon-arb.png"
-                        alt="op"
-                        width={18}
-                        height={18}
-                        className=""
-                      />
-                      <Image
-                        src="/chains/icon-base.png"
-                        alt="op"
+                        alt="optimism"
                         width={18}
                         height={18}
                         className=""
                       />
                     </div>
+                    <Input
+                      id="optimism"
+                      value={coinTypes?.["2147483658"] || ""}
+                      onChange={(e) =>
+                        updateCoinTypes("2147483658", e.target.value)
+                      }
+                      className="pl-[42px] bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded placeholder:text-neutral-500"
+                      placeholder="0x..."
+                    />
                   </div>
-                  <div
-                    className={`${
-                      l2Addresses
-                        ? "bg-emerald-600 justify-end"
-                        : "bg-neutral-600 justify-start"
-                    } h-6 p-1 w-[44px] rounded-[999px] justify-start items-center gap-2.5 flex`}
-                    onMouseDown={() => setL2Addresses(!l2Addresses)}
-                  >
-                    <div className="w-4 h-4 bg-neutral-300 rounded-full" />
+                  {/* Polygon */}
+                  <div className="mb-2">
+                    <Label htmlFor="address" className="text-right text-white">
+                      Polygon
+                    </Label>
+                  </div>
+                  <div className="relative mb-4">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <Image
+                        src="/chains/icon-polygon.png"
+                        alt="polygon"
+                        width={18}
+                        height={18}
+                        className=""
+                      />
+                    </div>
+                    <Input
+                      id="polygon"
+                      value={coinTypes?.["2147483785"] || ""}
+                      onChange={(e) =>
+                        updateCoinTypes("2147483785", e.target.value)
+                      }
+                      className="pl-[42px] bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded placeholder:text-neutral-500"
+                      placeholder="0x..."
+                    />
+                  </div>
+                  {/* Base */}
+                  <div className="mb-2">
+                    <Label htmlFor="address" className="text-right text-white">
+                      Base
+                    </Label>
+                  </div>
+                  <div className="relative mb-4">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <Image
+                        src="/chains/icon-base.png"
+                        alt="base"
+                        width={18}
+                        height={18}
+                        className=""
+                      />
+                    </div>
+                    <Input
+                      id="base"
+                      value={coinTypes?.["2147525809"] || ""}
+                      onChange={(e) =>
+                        updateCoinTypes("2147525809", e.target.value)
+                      }
+                      className="pl-[42px] bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded placeholder:text-neutral-500"
+                      placeholder="0x..."
+                    />
+                  </div>
+                  {/* Arbitrum */}
+                  <div className="mb-2">
+                    <Label htmlFor="address" className="text-right text-white">
+                      Arbitrum
+                    </Label>
+                  </div>
+                  <div className="relative mb-4">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <Image
+                        src="/chains/icon-arb.png"
+                        alt="arbitrum"
+                        width={18}
+                        height={18}
+                        className=""
+                      />
+                    </div>
+                    <Input
+                      id="arbitrum"
+                      value={coinTypes?.["2147492101"] || ""}
+                      onChange={(e) =>
+                        updateCoinTypes("2147492101", e.target.value)
+                      }
+                      className="pl-[42px] bg-neutral-750 focus-visible:ring-0 text-xs text-white rounded placeholder:text-neutral-500"
+                      placeholder="0x..."
+                    />
                   </div>
                 </div>
-                <div className="h-[33px] px-3 py-[9px] bg-[#333333] rounded-md justify-start items-center gap-3 flex my-4">
-                  <div className="text-neutral-400 text-xs font-medium ">
-                    {address}
-                  </div>
-                </div>
-              </>
+                <hr className=" border-neutral-750" />
+              </div>
             )}
           </>
         )}
