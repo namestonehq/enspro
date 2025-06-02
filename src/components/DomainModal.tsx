@@ -54,10 +54,8 @@ export default function DomainModal({
   const [address, setAddress] = useState("");
   const [textRecords, setTextRecords] = useState(emptyTextRecords);
   const [coinTypes, setCoinTypes] = useState(emptyCoinTypes);
-  const [l2Addresses, setL2Addresses] = useState(false); // checks op only
   const [contenthash, setContenthash] = useState("");
   const [open, setOpen] = useState(false);
-  const [fetching, setFetching] = useState(false);
   const [editTab, setEditTab] = useState("subname"); //subname, profile, links, addresses
 
   // useEffect to get domainInfo
@@ -70,7 +68,6 @@ export default function DomainModal({
           setTextRecords(data.text_records);
           setContenthash(data.contenthash);
           setCoinTypes(data.coin_types);
-          setL2Addresses(!!data.coin_types?.["2147483658"] || false); //checks op only
         });
       } else {
         console.error("Failed to fetch domain info");
@@ -79,22 +76,6 @@ export default function DomainModal({
   }, [basename]);
 
   function saveDomainInfo() {
-    let coinTypesFull = {
-      ...coinTypes,
-      "2147483658": "",
-      "2147483785": "",
-      "2147525809": "",
-      "2147492101": "",
-    } as Record<string, string>;
-    if (l2Addresses) {
-      coinTypesFull = {
-        ...coinTypes,
-        "2147483658": address,
-        "2147483785": address,
-        "2147525809": address,
-        "2147492101": address,
-      };
-    }
     // Save domainInfo
     fetch(`/api/edit-domain`, {
       method: "POST",
@@ -105,7 +86,7 @@ export default function DomainModal({
         domain: basename,
         address: address,
         text_records: textRecords,
-        coin_types: coinTypesFull,
+        coin_types: coinTypes,
         contenthash: contenthash,
       }),
     }).then((response) => {
